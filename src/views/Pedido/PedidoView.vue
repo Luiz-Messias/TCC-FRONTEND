@@ -1,8 +1,11 @@
 <template>
-  <div class="w-full flex flex-col min-h-screen">
-    <div class="flex-1 flex flex-col items-center justify-start py-10 px-4">
-      <div class="w-full bg-white rounded-2xl shadow-lg p-8">
-        <h1 class="text-2xl font-bold mb-6 flex items-center gap-2">Novo Pedido</h1>
+  <div class="p-6">
+    <div class="max-w-4xl mx-auto">
+      <div class="bg-white rounded-lg shadow-lg p-8">
+        <h1 class="text-2xl font-bold mb-6 flex items-center gap-2">
+          <i class="fas fa-shopping-cart"></i>
+          Novo Pedido
+        </h1>
         <form @submit.prevent="salvarPedido" class="space-y-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -31,6 +34,18 @@
                 required
               />
             </div>
+          </div>
+          <div>
+            <label class="block text-gray-700 mb-1 font-medium" for="observacoes">
+              <i class="fas fa-comment mr-1"></i> Observações
+            </label>
+            <textarea
+              v-model="observacoes"
+              id="observacoes"
+              rows="3"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none transition"
+              placeholder="Observações do pedido (opcional)"
+            ></textarea>
           </div>
           <div>
             <label class="block text-gray-700 mb-1 font-medium" for="produtos">

@@ -12,7 +12,7 @@
       <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
     </div>
     <div
-      v-if="produtosFiltrados.length > 0 || busca.length === 0"
+      v-if="produtosFiltrados.length > 0"
       class="mt-2 border rounded bg-white max-h-60 overflow-y-auto shadow"
     >
       <ul>
@@ -22,9 +22,14 @@
           @click="selecionarProduto(produto)"
           class="px-4 py-2 cursor-pointer hover:bg-primary hover:bg-gray-300 flex justify-between items-center"
         >
-          <span>
-            <span class="font-semibold">#{{ produto.id }}</span> - {{ produto.nome }}
-          </span>
+          <div class="flex flex-col">
+            <span>
+              <span class="font-semibold">#{{ produto.id }}</span> - {{ produto.nome }}
+            </span>
+            <span class="text-sm text-gray-500">
+              R$ {{ produto.preco?.toFixed(2).replace('.', ',') || '0,00' }}
+            </span>
+          </div>
           <i
             v-if="produtoSelecionadoIds.includes(produto.id)"
             class="fas fa-check text-green-500"

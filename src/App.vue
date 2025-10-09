@@ -1,10 +1,12 @@
 <template>
-  <div id="app" class="min-h-screen flex bg-gray-50">
+  <div id="app" class="h-screen flex bg-gray-50 overflow-hidden">
     <MenuLateral v-if="estaAutenticado" />
-    <div class="flex-1 min-h-screen ml-0 md:ml-0">
-      <transition name="fade" mode="out-in">
-        <router-view />
-      </transition>
+    <div class="flex-1 flex flex-col overflow-hidden">
+      <main class="flex-1 overflow-y-auto">
+        <transition name="fade" mode="out-in">
+          <router-view />
+        </transition>
+      </main>
     </div>
   </div>
 </template>
@@ -37,16 +39,47 @@ export default {
 <style>
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  padding: 0;
   font-family: 'Inter', sans-serif;
+  overflow: hidden;
 }
 
 #app {
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
-.content {
-  width: 100%;
-  height: 100vh;
+html {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Transições */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* Scrollbar personalizada para o conteúdo */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }
 </style>

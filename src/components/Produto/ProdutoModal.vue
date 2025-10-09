@@ -21,6 +21,7 @@
           <div class="md:col-span-2">
             <label class="block text-sm font-medium text-gray-700 mb-2"> Nome do Produto * </label>
             <input
+              ref="nomeInput"
               v-model="produto.nome"
               type="text"
               required
@@ -176,48 +177,4 @@
   </div>
 </template>
 
-<script>
-import { storeToRefs } from 'pinia'
-import { useProdutoStore } from '@/stores/produtoStore'
-import { onMounted } from 'vue'
-
-export default {
-  name: 'ProdutoModal',
-  setup() {
-    const produtoStore = useProdutoStore()
-
-    const { produto, categorias, marcas, modalAberto, modoEdicao, loading } =
-      storeToRefs(produtoStore)
-
-    const { fecharModal, criarProduto, atualizarProduto, carregarCategorias, carregarMarcas } =
-      produtoStore
-
-    const salvarProduto = async () => {
-      try {
-        if (modoEdicao.value) {
-          await atualizarProduto(produto.value.id, produto.value)
-        } else {
-          await criarProduto(produto.value)
-        }
-      } catch (erro) {
-        // Erro já tratado na store
-      }
-    }
-
-    onMounted(async () => {
-      await Promise.all([carregarCategorias(), carregarMarcas()])
-    })
-
-    return {
-      produto,
-      categorias,
-      marcas,
-      modalAberto,
-      modoEdicao,
-      loading,
-      fecharModal,
-      salvarProduto,
-    }
-  },
-}
-</script>
+<script src="./index.js"></script>

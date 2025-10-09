@@ -61,7 +61,7 @@ export const useCategoriaStore = defineStore('categoria', () => {
 
   const obterCategoria = async (id) => {
     try {
-      const resposta = await api.get(`/categorias/${id}`)
+      const resposta = await api.get(`/categoria/${id}`)
       return resposta.data.data || resposta.data
     } catch (erro) {
       const mensagem = parseApiError(erro)
@@ -90,7 +90,7 @@ export const useCategoriaStore = defineStore('categoria', () => {
   const atualizarCategoria = async (dadosCategoria) => {
     loading.value = true
     try {
-      const resposta = await api.put(`/categoria`, dadosCategoria)
+      const resposta = await api.put(`/categoria/${id}`, dadosCategoria)
       toast.success('Categoria atualizada com sucesso!')
       await listarCategorias()
       fecharModal()

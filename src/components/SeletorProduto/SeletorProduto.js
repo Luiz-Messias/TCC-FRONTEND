@@ -1,4 +1,4 @@
-import { ref, watch, computed } from 'vue'
+import { ref, watch, computed, onMounted } from 'vue'
 
 export default {
   name: 'SeletorProduto',
@@ -23,7 +23,8 @@ export default {
     const filtrarProdutos = () => {
       const termo = busca.value.trim().toLowerCase()
       if (!termo) {
-        produtosFiltrados.value = []
+        // Mostrar todos os produtos quando não há busca
+        produtosFiltrados.value = props.produtos.slice(0, 10) // Limitar a 10 para performance
         return
       }
       produtosFiltrados.value = props.produtos.filter(
@@ -33,7 +34,11 @@ export default {
 
     const selecionarProduto = (produto) => {
       if (!produtoSelecionadoIds.value.includes(produto.id)) {
-        produtosSelecionados.value.push(produto)
+        const produtoComQuantidade = {
+          ...produto,
+          quantidade: 1,
+        }
+        produtosSelecionados.value.push(produtoComQuantidade)
         emit('update:modelValue', produtosSelecionados.value)
         emit('selecionados', produtosSelecionados.value)
       }
@@ -45,10 +50,23 @@ export default {
       emit('selecionados', produtosSelecionados.value)
     }
 
+    // Carregar produtos iniciais quando o componente montar
+    onMounted(() => {
+      filtrarProdutos()
+    })
+
     watch(
       () => props.modelValue,
       (novo) => {
         produtosSelecionados.value = [...novo]
+      },
+    )
+
+    // Atualizar lista quando produtos mudarem
+    watch(
+      () => props.produtos,
+      () => {
+        filtrarProdutos()
       },
     )
 

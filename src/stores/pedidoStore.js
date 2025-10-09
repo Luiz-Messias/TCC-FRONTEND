@@ -4,25 +4,21 @@ import api from '@/api/axiosConfig'
 import { toast } from 'vue3-toastify'
 import { parseApiError } from '@/utils/parseApiError'
 
-export const useProdutoStore = defineStore('produto', () => {
+export const usePedidoStore = defineStore('pedido', () => {
   // Estado
-  const produtos = ref([])
-  const produto = ref({
+  const pedidos = ref([])
+  const pedido = ref({
     id: null,
-    nome: '',
-    descricao: '',
-    preco: 0,
-    estoque: 0,
-    unidadeMedida: 'Unidade',
-    fatorConversao: 1,
-    icms: 0,
-    ipi: 0,
-    categoriaId: null,
-    marcaId: null,
+    clienteId: null,
+    cliente: '',
+    dataPedido: '',
+    status: 'Pendente',
+    observacoes: '',
+    itens: [],
+    total: 0,
   })
 
-  const categorias = ref([])
-  const marcas = ref([])
+  const clientes = ref([])
   const loading = ref(false)
   const modalAberto = ref(false)
   const modoEdicao = ref(false)
@@ -32,38 +28,36 @@ export const useProdutoStore = defineStore('produto', () => {
   const itensPorPagina = ref(10)
   const totalItens = ref(0)
   const termoBusca = ref('')
-  const filtroCategoria = ref(null)
-  const filtroMarca = ref(null)
-  const ordenacao = ref({ campo: 'nome', direcao: 'asc' })
+  const filtroStatus = ref('')
+  const ordenacao = ref({ campo: 'dataPedido', direcao: 'desc' })
 
   // Computados
   const totalPaginas = computed(() => Math.ceil(totalItens.value / itensPorPagina.value))
 
   // Ações
-  const listarProdutos = async () => {
+  const listarPedidos = async () => {
     loading.value = true
     try {
       const params = {
         pagina: paginaAtual.value,
         itensPorPagina: itensPorPagina.value,
         termo: termoBusca.value,
-        categoriaId: filtroCategoria.value,
-        marcaId: filtroMarca.value,
+        status: filtroStatus.value,
         ordenarPor: ordenacao.value.campo,
         direcao: ordenacao.value.direcao,
       }
 
-      const resposta = await api.get('produto', { params })
+      const resposta = await api.get('/pedido', { params })
 
       // Ajustado para PagedResult do backend
       if (resposta.data.data) {
         const pagedResult = resposta.data.data
-        produtos.value = pagedResult.items || []
+        pedidos.value = pagedResult.items || []
         totalItens.value = pagedResult.totalItems || 0
         paginaAtual.value = pagedResult.currentPage || 1
       } else {
         // Fallback para outros formatos
-        produtos.value = resposta.data.items || resposta.data
+        pedidos.value = resposta.data.items || resposta.data
         totalItens.value = resposta.data.totalItems || resposta.data.length || 0
       }
     } catch (erro) {
@@ -74,9 +68,9 @@ export const useProdutoStore = defineStore('produto', () => {
     }
   }
 
-  const obterProduto = async (id) => {
+  const obterPedido = async (id) => {
     try {
-      const resposta = await api.get(`/produtos/${id}`)
+      const resposta = await api.get(`/pedido/${id}`)
       return resposta.data.data || resposta.data
     } catch (erro) {
       const mensagem = parseApiError(erro)
@@ -85,12 +79,12 @@ export const useProdutoStore = defineStore('produto', () => {
     }
   }
 
-  const criarProduto = async (dadosProduto) => {
+  const criarPedido = async (dadosPedido) => {
     loading.value = true
     try {
-      const resposta = await api.post('/produto', dadosProduto)
-      toast.success('Produto criado com sucesso!')
-      await listarProdutos()
+      const resposta = await api.post('pedido/criar/pedido', dadosPedido)
+      toast.success('Pedido criado com sucesso!')
+      await listarPedidos()
       fecharModal()
       return resposta.data
     } catch (erro) {
@@ -102,13 +96,12 @@ export const useProdutoStore = defineStore('produto', () => {
     }
   }
 
-  const atualizarProduto = async (id, dadosProduto) => {
+  const atualizarPedido = async (id, dadosPedido) => {
     loading.value = true
-    debugger
     try {
-      const resposta = await api.put(`produto/${id}`, dadosProduto)
-      toast.success('Produto atualizado com sucesso!')
-      await listarProdutos()
+      const resposta = await api.put(`/pedido/${id}`, dadosPedido)
+      toast.success('Pedido atualizado com sucesso!')
+      await listarPedidos()
       fecharModal()
       return resposta.data
     } catch (erro) {
@@ -120,12 +113,11 @@ export const useProdutoStore = defineStore('produto', () => {
     }
   }
 
-  const excluirProduto = async (id) => {
+  const excluirPedido = async (id) => {
     try {
-      debugger
-      await api.delete(`produto/${id}`)
-      toast.success('Produto excluído com sucesso!')
-      await listarProdutos()
+      await api.delete(`/pedido/${id}`)
+      toast.success('Pedido excluído com sucesso!')
+      await listarPedidos()
     } catch (erro) {
       const mensagem = parseApiError(erro)
       toast.error(mensagem)
@@ -133,44 +125,38 @@ export const useProdutoStore = defineStore('produto', () => {
     }
   }
 
-  const carregarCategorias = async () => {
+  const carregarClientes = async () => {
     try {
-      const resposta = await api.get('/categoria/all')
-      // Para carregar todas as categorias, usar endpoint sem paginação
-      categorias.value = resposta.data.data || resposta.data
+      const resposta = await api.get('/cliente/all')
+      clientes.value = resposta.data.data || resposta.data
     } catch (erro) {
-      console.error('Erro ao carregar categorias:', erro)
-    }
-  }
-
-  const carregarMarcas = async () => {
-    try {
-      const resposta = await api.get('/marca/all')
-      // Para carregar todas as marcas, usar endpoint sem paginação
-      marcas.value = resposta.data.data || resposta.data
-    } catch (erro) {
-      console.error('Erro ao carregar marcas:', erro)
+      console.error('Erro ao carregar clientes:', erro)
+      // Se não tiver API de clientes, usar dados mock
+      clientes.value = [
+        { id: 1, nome: 'Bar do Zé' },
+        { id: 2, nome: 'Mercado Central' },
+        { id: 3, nome: 'Restaurante Sabor' },
+        { id: 4, nome: 'Padaria do João' },
+        { id: 5, nome: 'Lanchonete da Maria' },
+      ]
     }
   }
 
   // Modal
-  const abrirModal = (produtoParaEditar = null) => {
-    if (produtoParaEditar) {
-      produto.value = { ...produtoParaEditar }
+  const abrirModal = (pedidoParaEditar = null) => {
+    if (pedidoParaEditar) {
+      pedido.value = { ...pedidoParaEditar }
       modoEdicao.value = true
     } else {
-      produto.value = {
+      pedido.value = {
         id: null,
-        nome: '',
-        descricao: '',
-        preco: 0,
-        estoque: 0,
-        unidadeMedida: 'Unidade',
-        fatorConversao: 1,
-        icms: 0,
-        ipi: 0,
-        categoriaId: null,
-        marcaId: null,
+        clienteId: null,
+        cliente: '',
+        dataPedido: new Date().toISOString().split('T')[0],
+        status: 'Pendente',
+        observacoes: '',
+        itens: [],
+        total: 0,
       }
       modoEdicao.value = false
     }
@@ -180,33 +166,29 @@ export const useProdutoStore = defineStore('produto', () => {
   const fecharModal = () => {
     modalAberto.value = false
     modoEdicao.value = false
-    produto.value = {
+    pedido.value = {
       id: null,
-      nome: '',
-      descricao: '',
-      preco: 0,
-      estoque: 0,
-      unidadeMedida: 'Unidade',
-      fatorConversao: 1,
-      icms: 0,
-      ipi: 0,
-      categoriaId: null,
-      marcaId: null,
+      clienteId: null,
+      cliente: '',
+      dataPedido: new Date().toISOString().split('T')[0],
+      status: 'Pendente',
+      observacoes: '',
+      itens: [],
+      total: 0,
     }
   }
 
   // Filtros e busca
   const aplicarFiltros = () => {
     paginaAtual.value = 1
-    listarProdutos()
+    listarPedidos()
   }
 
   const limparFiltros = () => {
     termoBusca.value = ''
-    filtroCategoria.value = null
-    filtroMarca.value = null
+    filtroStatus.value = ''
     paginaAtual.value = 1
-    listarProdutos()
+    listarPedidos()
   }
 
   const alterarOrdenacao = (campo) => {
@@ -216,15 +198,14 @@ export const useProdutoStore = defineStore('produto', () => {
       ordenacao.value.campo = campo
       ordenacao.value.direcao = 'asc'
     }
-    listarProdutos()
+    listarPedidos()
   }
 
   return {
     // Estado
-    produtos,
-    produto,
-    categorias,
-    marcas,
+    pedidos,
+    pedido,
+    clientes,
     loading,
     modalAberto,
     modoEdicao,
@@ -233,18 +214,16 @@ export const useProdutoStore = defineStore('produto', () => {
     totalItens,
     totalPaginas,
     termoBusca,
-    filtroCategoria,
-    filtroMarca,
+    filtroStatus,
     ordenacao,
 
     // Ações
-    listarProdutos,
-    obterProduto,
-    criarProduto,
-    atualizarProduto,
-    excluirProduto,
-    carregarCategorias,
-    carregarMarcas,
+    listarPedidos,
+    obterPedido,
+    criarPedido,
+    atualizarPedido,
+    excluirPedido,
+    carregarClientes,
     abrirModal,
     fecharModal,
     aplicarFiltros,

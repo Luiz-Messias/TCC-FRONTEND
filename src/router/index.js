@@ -6,6 +6,7 @@ import DashboardView from '@/views/DashboardView.vue'
 import PedidoView from '@/views/Pedido/PedidoView.vue'
 import ProdutoView from '@/views/Produto/ProdutoView.vue'
 import CategoriaView from '@/views/Categoria/CategoriaView.vue'
+import MarcaView from '@/views/Marca/MarcaView.vue'
 
 const routes = [
   {
@@ -40,6 +41,12 @@ const routes = [
     path: '/categorias',
     name: 'Categorias',
     component: CategoriaView,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/marcas',
+    name: 'Marcas',
+    component: MarcaView,
     meta: { requiresAuth: true },
   },
 ]

@@ -4,25 +4,15 @@ import api from '@/api/axiosConfig'
 import { toast } from 'vue3-toastify'
 import { parseApiError } from '@/utils/parseApiError'
 
-export const useProdutoStore = defineStore('produto', () => {
+export const useMarcaStore = defineStore('marca', () => {
   // Estado
-  const produtos = ref([])
-  const produto = ref({
-    id: null,
+  const marcas = ref([])
+  const marca = ref({
+    id: 0,
     nome: '',
     descricao: '',
-    preco: 0,
-    estoque: 0,
-    unidadeMedida: 'Unidade',
-    fatorConversao: 1,
-    icms: 0,
-    ipi: 0,
-    categoriaId: null,
-    marcaId: null,
   })
 
-  const categorias = ref([])
-  const marcas = ref([])
   const loading = ref(false)
   const modalAberto = ref(false)
   const modoEdicao = ref(false)
@@ -32,38 +22,34 @@ export const useProdutoStore = defineStore('produto', () => {
   const itensPorPagina = ref(10)
   const totalItens = ref(0)
   const termoBusca = ref('')
-  const filtroCategoria = ref(null)
-  const filtroMarca = ref(null)
   const ordenacao = ref({ campo: 'nome', direcao: 'asc' })
 
   // Computados
   const totalPaginas = computed(() => Math.ceil(totalItens.value / itensPorPagina.value))
 
   // Ações
-  const listarProdutos = async () => {
+  const listarMarcas = async () => {
     loading.value = true
     try {
       const params = {
         pagina: paginaAtual.value,
         itensPorPagina: itensPorPagina.value,
         termo: termoBusca.value,
-        categoriaId: filtroCategoria.value,
-        marcaId: filtroMarca.value,
         ordenarPor: ordenacao.value.campo,
         direcao: ordenacao.value.direcao,
       }
 
-      const resposta = await api.get('produto', { params })
+      const resposta = await api.get('/marca', { params })
 
       // Ajustado para PagedResult do backend
       if (resposta.data.data) {
         const pagedResult = resposta.data.data
-        produtos.value = pagedResult.items || []
+        marcas.value = pagedResult.items || []
         totalItens.value = pagedResult.totalItems || 0
         paginaAtual.value = pagedResult.currentPage || 1
       } else {
         // Fallback para outros formatos
-        produtos.value = resposta.data.items || resposta.data
+        marcas.value = resposta.data.items || resposta.data
         totalItens.value = resposta.data.totalItems || resposta.data.length || 0
       }
     } catch (erro) {
@@ -74,9 +60,9 @@ export const useProdutoStore = defineStore('produto', () => {
     }
   }
 
-  const obterProduto = async (id) => {
+  const obterMarca = async (id) => {
     try {
-      const resposta = await api.get(`/produtos/${id}`)
+      const resposta = await api.get(`/marca/${id}`)
       return resposta.data.data || resposta.data
     } catch (erro) {
       const mensagem = parseApiError(erro)
@@ -85,12 +71,12 @@ export const useProdutoStore = defineStore('produto', () => {
     }
   }
 
-  const criarProduto = async (dadosProduto) => {
+  const criarMarca = async (dadosMarca) => {
     loading.value = true
     try {
-      const resposta = await api.post('/produto', dadosProduto)
-      toast.success('Produto criado com sucesso!')
-      await listarProdutos()
+      const resposta = await api.post('/marca', dadosMarca)
+      toast.success('Marca criada com sucesso!')
+      await listarMarcas()
       fecharModal()
       return resposta.data
     } catch (erro) {
@@ -102,13 +88,12 @@ export const useProdutoStore = defineStore('produto', () => {
     }
   }
 
-  const atualizarProduto = async (id, dadosProduto) => {
+  const atualizarMarca = async (id, dadosMarca) => {
     loading.value = true
-    debugger
     try {
-      const resposta = await api.put(`produto/${id}`, dadosProduto)
-      toast.success('Produto atualizado com sucesso!')
-      await listarProdutos()
+      const resposta = await api.put(`/marca`, dadosMarca)
+      toast.success('Marca atualizada com sucesso!')
+      await listarMarcas()
       fecharModal()
       return resposta.data
     } catch (erro) {
@@ -120,57 +105,28 @@ export const useProdutoStore = defineStore('produto', () => {
     }
   }
 
-  const excluirProduto = async (id) => {
+  const excluirMarca = async (id) => {
     try {
-      debugger
-      await api.delete(`produto/${id}`)
-      toast.success('Produto excluído com sucesso!')
-      await listarProdutos()
+      await api.delete(`/marca/${id}`)
+      toast.success('Marca excluída com sucesso!')
+      await listarMarcas()
     } catch (erro) {
       const mensagem = parseApiError(erro)
       toast.error(mensagem)
       throw erro
-    }
-  }
-
-  const carregarCategorias = async () => {
-    try {
-      const resposta = await api.get('/categoria/all')
-      // Para carregar todas as categorias, usar endpoint sem paginação
-      categorias.value = resposta.data.data || resposta.data
-    } catch (erro) {
-      console.error('Erro ao carregar categorias:', erro)
-    }
-  }
-
-  const carregarMarcas = async () => {
-    try {
-      const resposta = await api.get('/marca/all')
-      // Para carregar todas as marcas, usar endpoint sem paginação
-      marcas.value = resposta.data.data || resposta.data
-    } catch (erro) {
-      console.error('Erro ao carregar marcas:', erro)
     }
   }
 
   // Modal
-  const abrirModal = (produtoParaEditar = null) => {
-    if (produtoParaEditar) {
-      produto.value = { ...produtoParaEditar }
+  const abrirModal = (marcaParaEditar = null) => {
+    if (marcaParaEditar) {
+      marca.value = { ...marcaParaEditar }
       modoEdicao.value = true
     } else {
-      produto.value = {
+      marca.value = {
         id: null,
         nome: '',
         descricao: '',
-        preco: 0,
-        estoque: 0,
-        unidadeMedida: 'Unidade',
-        fatorConversao: 1,
-        icms: 0,
-        ipi: 0,
-        categoriaId: null,
-        marcaId: null,
       }
       modoEdicao.value = false
     }
@@ -180,33 +136,23 @@ export const useProdutoStore = defineStore('produto', () => {
   const fecharModal = () => {
     modalAberto.value = false
     modoEdicao.value = false
-    produto.value = {
+    marca.value = {
       id: null,
       nome: '',
       descricao: '',
-      preco: 0,
-      estoque: 0,
-      unidadeMedida: 'Unidade',
-      fatorConversao: 1,
-      icms: 0,
-      ipi: 0,
-      categoriaId: null,
-      marcaId: null,
     }
   }
 
   // Filtros e busca
   const aplicarFiltros = () => {
     paginaAtual.value = 1
-    listarProdutos()
+    listarMarcas()
   }
 
   const limparFiltros = () => {
     termoBusca.value = ''
-    filtroCategoria.value = null
-    filtroMarca.value = null
     paginaAtual.value = 1
-    listarProdutos()
+    listarMarcas()
   }
 
   const alterarOrdenacao = (campo) => {
@@ -216,15 +162,13 @@ export const useProdutoStore = defineStore('produto', () => {
       ordenacao.value.campo = campo
       ordenacao.value.direcao = 'asc'
     }
-    listarProdutos()
+    listarMarcas()
   }
 
   return {
     // Estado
-    produtos,
-    produto,
-    categorias,
     marcas,
+    marca,
     loading,
     modalAberto,
     modoEdicao,
@@ -233,18 +177,14 @@ export const useProdutoStore = defineStore('produto', () => {
     totalItens,
     totalPaginas,
     termoBusca,
-    filtroCategoria,
-    filtroMarca,
     ordenacao,
 
     // Ações
-    listarProdutos,
-    obterProduto,
-    criarProduto,
-    atualizarProduto,
-    excluirProduto,
-    carregarCategorias,
-    carregarMarcas,
+    listarMarcas,
+    obterMarca,
+    criarMarca,
+    atualizarMarca,
+    excluirMarca,
     abrirModal,
     fecharModal,
     aplicarFiltros,

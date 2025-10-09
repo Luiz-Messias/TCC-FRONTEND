@@ -1,4 +1,7 @@
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { storeToRefs } from 'pinia'
+import { usePedidoStore } from '@/stores/pedidoStore'
+import { useProdutoStore } from '@/stores/produtoStore'
 import SeletorProduto from '@/components/SeletorProduto/SeletorProduto.vue'
 
 export default {
@@ -7,70 +10,100 @@ export default {
     SeletorProduto,
   },
   setup() {
-    // Dados simulados para clientes e produtos
-    const clientes = ref([
-      { id: 1, nome: 'Bar do Zé' },
-      { id: 2, nome: 'Mercado Central' },
-      { id: 3, nome: 'Restaurante Sabor' },
-    ])
-    const produtos = ref([
-      { id: 1, nome: 'Cerveja 600ml', preco: 8.5 },
-      { id: 2, nome: 'Refrigerante 2L', preco: 7.0 },
-      { id: 3, nome: 'Água Mineral', preco: 3.5 },
-    ])
+    const pedidoStore = usePedidoStore()
+    const produtoStore = useProdutoStore()
+
+    const { clientes } = storeToRefs(pedidoStore)
+    const { produtos } = storeToRefs(produtoStore)
+
+    const { carregarClientes, criarPedido } = pedidoStore
+    const { listarProdutos: carregarProdutos } = produtoStore
 
     const produtosSelecionados = ref([])
 
     // Formulário
     const cliente = ref('')
-    const data = ref('')
-    const itens = ref([{ produtoId: '', quantidade: 1 }])
+    const data = ref(new Date().toISOString().split('T')[0])
+    const observacoes = ref('')
 
     // Computed para calcular o total do pedido
     const totalPedido = computed(() => {
-      return itens.value.reduce((total, item) => {
-        const prod = produtos.value.find((p) => p.id === item.produtoId)
-        return total + (prod ? prod.preco * item.quantidade : 0)
+      return produtosSelecionados.value.reduce((total, item) => {
+        return total + item.preco * (item.quantidade || 1)
       }, 0)
     })
 
     // Métodos
-    const adicionarItem = () => {
-      itens.value.push({ produtoId: '', quantidade: 1 })
+    const atualizarItensSelecionados = (itensSelecionados) => {
+      produtosSelecionados.value = itensSelecionados.map((item) => ({
+        ...item,
+        quantidade: item.quantidade || 1,
+      }))
     }
-    const removerItem = (idx) => {
-      if (itens.value.length > 1) itens.value.splice(idx, 1)
+
+    const removerProdutoSelecionado = (index) => {
+      produtosSelecionados.value.splice(index, 1)
     }
+
     const limparFormulario = () => {
       cliente.value = ''
-      data.value = ''
-      itens.value = [{ produtoId: '', quantidade: 1 }]
+      data.value = new Date().toISOString().split('T')[0]
+      observacoes.value = ''
+      produtosSelecionados.value = []
     }
-    const salvarPedido = () => {
-      // Aqui você pode integrar com API ou store
-      alert('Pedido salvo com sucesso!')
-      limparFormulario()
+
+    const salvarPedido = async () => {
+      try {
+        if (!cliente.value) {
+          alert('Selecione um cliente')
+          return
+        }
+
+        if (produtosSelecionados.value.length === 0) {
+          alert('Adicione pelo menos um produto')
+          return
+        }
+
+        const dadosPedido = {
+          clienteId: cliente.value,
+          dataPedido: new Date(data.value + 'T' + new Date().toTimeString().slice(0, 8)).toISOString(),
+          observacoes: observacoes.value || '',
+          itens: produtosSelecionados.value.map((item) => ({
+            produtoId: item.id,
+            quantidade: item.quantidade || 1,
+            precoUnitario: item.preco,
+          })),
+        }
+
+        await criarPedido(dadosPedido)
+        limparFormulario()
+      } catch (erro) {
+        console.error('Erro ao salvar pedido:', erro)
+      }
     }
-    const handleCardClick = () => {}
 
     // Filtro para moeda
     const currency = (valor) => {
       return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
     }
 
+    // Carregar dados iniciais
+    onMounted(async () => {
+      await Promise.all([carregarClientes(), carregarProdutos()])
+    })
+
     return {
       clientes,
       produtos,
       cliente,
       data,
-      itens,
+      observacoes,
       totalPedido,
       produtosSelecionados,
-      adicionarItem,
-      removerItem,
+      atualizarItensSelecionados,
+      removerProdutoSelecionado,
       limparFormulario,
       salvarPedido,
-      handleCardClick,
       currency,
     }
   },
