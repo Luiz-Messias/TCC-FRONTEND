@@ -4,9 +4,15 @@ import SplashScreen from '@/components/SplashScreen.vue'
 import Login from '@/views/Login/LoginView.vue'
 import DashboardView from '@/views/DashboardView.vue'
 import PedidoView from '@/views/Pedido/PedidoView.vue'
+import PedidosView from '@/views/Pedidos/Pedidos.vue'
 import ProdutoView from '@/views/Produto/ProdutoView.vue'
 import CategoriaView from '@/views/Categoria/CategoriaView.vue'
 import MarcaView from '@/views/Marca/MarcaView.vue'
+import EstoqueView from '@/views/Estoque/Estoque.vue'
+import EstoqueSaldosView from '@/views/EstoqueSaldos/EstoqueSaldos.vue'
+import EstoqueDashboardView from '@/views/EstoqueDashboard/EstoqueDashboard.vue'
+import FornecedorView from '@/views/Fornecedor/FornecedorView.vue'
+import ConversaoUnidadesView from '@/views/ConversaoUnidades/ConversaoUnidadesView.vue'
 
 const routes = [
   {
@@ -32,6 +38,12 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
+    path: '/pedidos',
+    name: 'Pedidos',
+    component: PedidosView,
+    meta: { requiresAuth: true },
+  },
+  {
     path: '/produtos',
     name: 'Produtos',
     component: ProdutoView,
@@ -47,6 +59,42 @@ const routes = [
     path: '/marcas',
     name: 'Marcas',
     component: MarcaView,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/fornecedores',
+    name: 'Fornecedores',
+    component: FornecedorView,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/estoque/dashboard',
+    name: 'EstoqueDashboard',
+    component: EstoqueDashboardView,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/estoque/saldos',
+    name: 'EstoqueSaldos',
+    component: EstoqueSaldosView,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/estoque/movimentacoes',
+    name: 'EstoqueMovimentacoes',
+    component: EstoqueView,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/conversao-unidades',
+    name: 'ConversaoUnidades',
+    component: ConversaoUnidadesView,
+    meta: { requiresAuth: true },
+  },
+  // Rota antiga para compatibilidade
+  {
+    path: '/estoque',
+    redirect: '/estoque/dashboard',
     meta: { requiresAuth: true },
   },
 ]

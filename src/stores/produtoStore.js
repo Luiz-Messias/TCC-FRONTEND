@@ -19,6 +19,7 @@ export const useProdutoStore = defineStore('produto', () => {
     ipi: 0,
     categoriaId: null,
     marcaId: null,
+    codigoTributarioId: null,
   })
 
   const categorias = ref([])

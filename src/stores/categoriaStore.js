@@ -87,7 +87,7 @@ export const useCategoriaStore = defineStore('categoria', () => {
     }
   }
 
-  const atualizarCategoria = async (dadosCategoria) => {
+  const atualizarCategoria = async (id, dadosCategoria) => {
     loading.value = true
     try {
       const resposta = await api.put(`/categoria/${id}`, dadosCategoria)

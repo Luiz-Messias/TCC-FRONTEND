@@ -11,11 +11,28 @@
         >
           <div class="flex items-center mb-4">
             <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
-              <i class="fas fa-plus text-blue-600 text-xl"></i>
+              <i class="fas fa-plus-circle text-blue-600 text-xl"></i>
             </div>
             <div>
-              <h3 class="font-semibold text-gray-800">Realizar</h3>
+              <h3 class="font-semibold text-gray-800">Novo</h3>
               <p class="text-sm text-gray-600">Pedido</p>
+            </div>
+          </div>
+        </div>
+      </router-link>
+
+      <!-- Ver Pedidos -->
+      <router-link to="/pedidos">
+        <div
+          class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer"
+        >
+          <div class="flex items-center mb-4">
+            <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mr-4">
+              <i class="fas fa-shopping-cart text-indigo-600 text-xl"></i>
+            </div>
+            <div>
+              <h3 class="font-semibold text-gray-800">Ver</h3>
+              <p class="text-sm text-gray-600">Pedidos</p>
             </div>
           </div>
         </div>

@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import api from '@/api/axiosConfig'
 import { toast } from 'vue3-toastify'
 import { parseApiError } from '@/utils/parseApiError'
+import { useEstoqueStore } from './estoqueStore'
 
 export const usePedidoStore = defineStore('pedido', () => {
   // Estado
@@ -68,6 +69,30 @@ export const usePedidoStore = defineStore('pedido', () => {
     }
   }
 
+  const listarPedidosComParametros = async (params) => {
+    loading.value = true
+    try {
+      const resposta = await api.get('/pedido', { params })
+
+      // Ajustado para PagedResult do backend
+      if (resposta.data.data) {
+        const pagedResult = resposta.data.data
+        pedidos.value = pagedResult.items || []
+        totalItens.value = pagedResult.totalItems || 0
+        paginaAtual.value = pagedResult.currentPage || 1
+      } else {
+        // Fallback para outros formatos
+        pedidos.value = resposta.data.items || resposta.data
+        totalItens.value = resposta.data.totalItems || resposta.data.length || 0
+      }
+    } catch (erro) {
+      const mensagem = parseApiError(erro)
+      toast.error(mensagem)
+    } finally {
+      loading.value = false
+    }
+  }
+
   const obterPedido = async (id) => {
     try {
       const resposta = await api.get(`/pedido/${id}`)
@@ -82,11 +107,78 @@ export const usePedidoStore = defineStore('pedido', () => {
   const criarPedido = async (dadosPedido) => {
     loading.value = true
     try {
+      // Obter store de estoque
+      const estoqueStore = useEstoqueStore()
+
+      // Verificar disponibilidade de estoque antes de criar o pedido
+      for (const item of dadosPedido.itens) {
+        debugger
+        const verificacao = await estoqueStore.verificarDisponibilidade(
+          item.produtoId,
+          item.quantidade,
+        )
+        if (!verificacao.disponivel) {
+          toast.error(`${item.produtoNome || 'Produto'}: ${verificacao.mensagem}`)
+          loading.value = false
+          throw new Error(verificacao.mensagem)
+        }
+      }
+
+      // Criar o pedido
       const resposta = await api.post('pedido/criar/pedido', dadosPedido)
-      toast.success('Pedido criado com sucesso!')
+
+      // Se o pedido foi criado com sucesso, dar baixa no estoque
+      const pedidoCriado = resposta.data.data || resposta.data
+
+      if (!pedidoCriado.pedidoId) {
+        console.error('⚠️ Pedido criado sem ID:', pedidoCriado)
+        toast.warning('Pedido criado, mas não foi possível dar baixa automática no estoque.')
+      } else {
+        await estoqueStore.darBaixaAutomatica(pedidoCriado.pedidoId, dadosPedido.itens)
+      }
+
+      toast.success('Pedido criado com sucesso e estoque atualizado!')
       await listarPedidos()
       fecharModal()
-      return resposta.data
+      return pedidoCriado
+    } catch (erro) {
+      const mensagem = parseApiError(erro)
+      toast.error(mensagem)
+      throw erro
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const criarOrcamento = async (dadosOrcamento) => {
+    loading.value = true
+    try {
+      // Orçamento NÃO precisa verificar estoque
+      const resposta = await api.post('pedido/orcamentos', dadosOrcamento)
+      const orcamentoCriado = resposta.data.data || resposta.data
+
+      toast.success('Orçamento criado com sucesso!')
+      await listarPedidos()
+      fecharModal()
+      return orcamentoCriado
+    } catch (erro) {
+      const mensagem = parseApiError(erro)
+      toast.error(mensagem)
+      throw erro
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const converterOrcamentoEmPedido = async (orcamentoId) => {
+    loading.value = true
+    try {
+      const resposta = await api.post(`pedido/${orcamentoId}/converter`)
+      const pedidoConvertido = resposta.data.data || resposta.data
+
+      toast.success('Orçamento convertido em pedido com sucesso! Estoque atualizado.')
+      await listarPedidos()
+      return pedidoConvertido
     } catch (erro) {
       const mensagem = parseApiError(erro)
       toast.error(mensagem)
@@ -116,13 +208,112 @@ export const usePedidoStore = defineStore('pedido', () => {
   const excluirPedido = async (id) => {
     try {
       await api.delete(`/pedido/${id}`)
-      toast.success('Pedido excluído com sucesso!')
+      toast.success('Pedido cancelado com sucesso!')
       await listarPedidos()
     } catch (erro) {
       const mensagem = parseApiError(erro)
       toast.error(mensagem)
       throw erro
     }
+  }
+
+  const cancelarPedido = async (id) => {
+    try {
+      await api.patch(`/pedido/${id}/cancelar`)
+      toast.success('Pedido cancelado com sucesso!')
+      await listarPedidos()
+    } catch (erro) {
+      const mensagem = parseApiError(erro)
+      toast.error(mensagem)
+      throw erro
+    }
+  }
+
+  const concluirPedido = async (id) => {
+    try {
+      await api.patch(`/pedido/${id}/concluir`)
+      toast.success('Pedido concluído com sucesso!')
+      await listarPedidos()
+    } catch (erro) {
+      const mensagem = parseApiError(erro)
+      toast.error(mensagem)
+      throw erro
+    }
+  }
+
+  const reativarPedido = async (id) => {
+    try {
+      await api.patch(`/pedido/${id}/reativar`)
+      toast.success('Pedido reativado com sucesso!')
+      await listarPedidos()
+    } catch (erro) {
+      const mensagem = parseApiError(erro)
+      toast.error(mensagem)
+      throw erro
+    }
+  }
+
+  const obterCorStatus = (status) => {
+    const cores = {
+      ATIVO: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+      CONCLUIDO: 'bg-green-100 text-green-800 border-green-200',
+      CANCELADO: 'bg-red-100 text-red-800 border-red-200',
+    }
+    return cores[status] || 'bg-gray-100 text-gray-800 border-gray-200'
+  }
+
+  const obterCorTipo = (tipo) => {
+    const cores = {
+      0: 'bg-blue-100 text-blue-800 border-blue-200', // Orçamento
+      1: 'bg-purple-100 text-purple-800 border-purple-200', // Pedido
+    }
+    return cores[tipo] || 'bg-gray-100 text-gray-800 border-gray-200'
+  }
+
+  const obterLabelTipo = (tipo) => {
+    const labels = {
+      0: 'Orçamento',
+      1: 'Pedido',
+    }
+    return labels[tipo] || 'Desconhecido'
+  }
+
+  const ehOrcamento = (pedido) => {
+    return pedido.tipo === 0
+  }
+
+  const podeConverterOrcamento = (pedido) => {
+    return pedido.tipo === 0 && pedido.status === 'ATIVO'
+  }
+
+  const obterLabelStatus = (status) => {
+    const labels = {
+      ATIVO: 'Ativo',
+      CONCLUIDO: 'Concluído',
+      CANCELADO: 'Cancelado',
+    }
+    return labels[status] || status
+  }
+
+  const obterIconeStatus = (status) => {
+    const icones = {
+      ATIVO: 'fa-clock',
+      CONCLUIDO: 'fa-check-circle',
+      CANCELADO: 'fa-times-circle',
+    }
+    return icones[status] || 'fa-circle'
+  }
+
+  const podeSerCancelado = (status) => {
+    return status === 'ATIVO'
+  }
+
+  const podeSerConcluido = (status) => {
+    return status === 'ATIVO'
+  }
+
+  const podeSerReativado = (status) => {
+    return status === 'CANCELADO'
   }
 
   const carregarClientes = async () => {
@@ -219,15 +410,33 @@ export const usePedidoStore = defineStore('pedido', () => {
 
     // Ações
     listarPedidos,
+    listarPedidosComParametros,
     obterPedido,
     criarPedido,
+    criarOrcamento,
+    converterOrcamentoEmPedido,
     atualizarPedido,
     excluirPedido,
+    cancelarPedido,
+    concluirPedido,
+    reativarPedido,
     carregarClientes,
     abrirModal,
     fecharModal,
     aplicarFiltros,
     limparFiltros,
     alterarOrdenacao,
+
+    // Helpers
+    obterCorStatus,
+    obterCorTipo,
+    obterLabelTipo,
+    obterLabelStatus,
+    obterIconeStatus,
+    ehOrcamento,
+    podeConverterOrcamento,
+    podeSerCancelado,
+    podeSerConcluido,
+    podeSerReativado,
   }
 })

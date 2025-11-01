@@ -152,6 +152,33 @@
               </option>
             </select>
           </div>
+
+          <!-- Código Tributário -->
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Código Tributário (CST/CSOSN)
+            </label>
+            <select
+              v-model="produto.codigoTributarioId"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option :value="null">Selecione um código tributário</option>
+              <optgroup label="CST - Código de Situação Tributária">
+                <option v-for="codigo in codigosCST" :key="codigo.id" :value="codigo.id">
+                  {{ codigo.codigo }} - {{ codigo.descricao }}
+                </option>
+              </optgroup>
+              <optgroup label="CSOSN - Simples Nacional">
+                <option v-for="codigo in codigosCSOSN" :key="codigo.id" :value="codigo.id">
+                  {{ codigo.codigo }} - {{ codigo.descricao }}
+                </option>
+              </optgroup>
+            </select>
+            <p v-if="produto.codigoTributarioId" class="text-xs text-gray-500 mt-1">
+              <i class="fas fa-info-circle mr-1"></i>
+              {{ getCodigoSelecionadoInfo() }}
+            </p>
+          </div>
         </div>
 
         <!-- Footer -->

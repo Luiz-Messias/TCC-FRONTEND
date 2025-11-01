@@ -2,15 +2,21 @@ import { onMounted, onUnmounted, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useProdutoStore } from '@/stores/produtoStore'
 import ProdutoModal from '@/components/Produto/ProdutoModal.vue'
+import CategoriaModal from '@/components/Categoria/CategoriaGerenciarModal.vue'
+import MarcaModal from '@/components/Marca/MarcaGerenciarModal.vue'
 
 export default {
   name: 'ProdutoView',
   components: {
     ProdutoModal,
+    CategoriaModal,
+    MarcaModal,
   },
   setup() {
     const produtoStore = useProdutoStore()
     const produtoParaExcluir = ref(null)
+    const modalCategoriaAberto = ref(false)
+    const modalMarcaAberto = ref(false)
 
     const {
       produtos,
@@ -48,9 +54,10 @@ export default {
     }
 
     const excluirProdutoConfirmado = async () => {
+      debugger
       if (produtoParaExcluir.value) {
         try {
-          await excluirProduto(produtoParaExcluir.value.produtoId)
+          await excluirProduto(produtoParaExcluir.value.id)
         } finally {
           produtoParaExcluir.value = null
         }
@@ -105,11 +112,61 @@ export default {
 
     // Função para lidar com atalhos de teclado
     const lidarComTeclado = (event) => {
-      // Só executa se não houver modal aberto e a tecla for Tab
-      if (event.key === 'Tab' && !modalAberto.value) {
+      // Tab - Novo produto
+      if (
+        event.key === 'Tab' &&
+        !modalAberto.value &&
+        !modalCategoriaAberto.value &&
+        !modalMarcaAberto.value
+      ) {
         event.preventDefault()
         abrirModal()
       }
+
+      // Alt+C - Gerenciar categorias
+      if (event.altKey && event.key.toLowerCase() === 'c' && !modalAberto.value) {
+        event.preventDefault()
+        abrirModalCategoria()
+      }
+
+      // Alt+M - Gerenciar marcas
+      if (event.altKey && event.key.toLowerCase() === 'm' && !modalAberto.value) {
+        event.preventDefault()
+        abrirModalMarca()
+      }
+
+      // ESC - Fechar modais
+      if (event.key === 'Escape') {
+        if (modalCategoriaAberto.value) {
+          fecharModalCategoria()
+        } else if (modalMarcaAberto.value) {
+          fecharModalMarca()
+        }
+      }
+    }
+
+    const abrirModalCategoria = () => {
+      modalCategoriaAberto.value = true
+    }
+
+    const fecharModalCategoria = () => {
+      modalCategoriaAberto.value = false
+    }
+
+    const recarregarCategorias = async () => {
+      await carregarCategorias()
+    }
+
+    const abrirModalMarca = () => {
+      modalMarcaAberto.value = true
+    }
+
+    const fecharModalMarca = () => {
+      modalMarcaAberto.value = false
+    }
+
+    const recarregarMarcas = async () => {
+      await carregarMarcas()
     }
 
     onMounted(async () => {
@@ -140,6 +197,8 @@ export default {
       filtroMarca,
       ordenacao,
       produtoParaExcluir,
+      modalCategoriaAberto,
+      modalMarcaAberto,
 
       // Métodos
       listarProdutos,
@@ -154,6 +213,12 @@ export default {
       obterNomeMarca,
       formatarMoeda,
       gerarPaginas,
+      abrirModalCategoria,
+      fecharModalCategoria,
+      recarregarCategorias,
+      abrirModalMarca,
+      fecharModalMarca,
+      recarregarMarcas,
     }
   },
 }

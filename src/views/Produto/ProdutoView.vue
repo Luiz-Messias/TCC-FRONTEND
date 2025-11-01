@@ -4,17 +4,6 @@
     <div class="mb-6">
       <h1 class="text-2xl font-bold text-gray-900 mb-2">Gerenciamento de Produtos</h1>
       <p class="text-gray-600">Gerencie o catálogo de produtos da sua empresa</p>
-      <!-- Legenda do atalho -->
-      <div class="mt-2 text-sm text-gray-500 flex items-center">
-        <i class="fas fa-keyboard mr-1"></i>
-        <span
-          >Pressione
-          <kbd class="px-2 py-1 bg-gray-100 border border-gray-300 rounded text-xs font-mono"
-            >Tab</kbd
-          >
-          para criar novo produto rapidamente</span
-        >
-      </div>
     </div>
 
     <!-- Filtros e Ações -->
@@ -34,7 +23,7 @@
 
         <!-- Filtro por categoria -->
         <div class="w-full md:w-48">
-          <label class="block text-sm font-medium text-gray-700 mb-2"> Categoria </label>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Categoria</label>
           <select
             v-model="filtroCategoria"
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -48,7 +37,7 @@
 
         <!-- Filtro por marca -->
         <div class="w-full md:w-48">
-          <label class="block text-sm font-medium text-gray-700 mb-2"> Marca </label>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Marca</label>
           <select
             v-model="filtroMarca"
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -76,14 +65,47 @@
             <i class="fas fa-times mr-2"></i>
             Limpar
           </button>
-          <button
-            @click="abrirModal()"
-            class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-          >
-            <i class="fas fa-plus mr-2"></i>
-            Novo Produto
-          </button>
         </div>
+      </div>
+
+      <!-- Linha de ações rápidas com atalhos visíveis -->
+      <div class="flex flex-wrap gap-3 mt-4 pt-4 border-t">
+        <button
+          @click="abrirModal()"
+          class="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors"
+        >
+          <i class="fas fa-plus"></i>
+          <span>Novo Produto</span>
+          <kbd
+            class="ml-2 px-2 py-0.5 bg-green-700 bg-opacity-50 border border-green-500 rounded text-xs font-mono"
+          >
+            Tab
+          </kbd>
+        </button>
+        <button
+          @click="abrirModalCategoria"
+          class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+        >
+          <i class="fas fa-folder"></i>
+          <span>Gerenciar Categorias</span>
+          <kbd
+            class="ml-2 px-2 py-0.5 bg-blue-700 bg-opacity-50 border border-blue-500 rounded text-xs font-mono"
+          >
+            Alt+C
+          </kbd>
+        </button>
+        <button
+          @click="abrirModalMarca"
+          class="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors"
+        >
+          <i class="fas fa-tags"></i>
+          <span>Gerenciar Marcas</span>
+          <kbd
+            class="ml-2 px-2 py-0.5 bg-purple-700 bg-opacity-50 border border-purple-500 rounded text-xs font-mono"
+          >
+            Alt+M
+          </kbd>
+        </button>
       </div>
     </div>
 
@@ -345,6 +367,22 @@
 
     <!-- Modal do produto -->
     <ProdutoModal />
+
+    <!-- Modal de Categorias -->
+    <CategoriaModal
+      v-if="modalCategoriaAberto"
+      :modalAberto="modalCategoriaAberto"
+      @fechar="fecharModalCategoria"
+      @atualizar="recarregarCategorias"
+    />
+
+    <!-- Modal de Marcas -->
+    <MarcaModal
+      v-if="modalMarcaAberto"
+      :modalAberto="modalMarcaAberto"
+      @fechar="fecharModalMarca"
+      @atualizar="recarregarMarcas"
+    />
   </div>
 </template>
 
