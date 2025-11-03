@@ -13,6 +13,9 @@ import EstoqueSaldosView from '@/views/EstoqueSaldos/EstoqueSaldos.vue'
 import EstoqueDashboardView from '@/views/EstoqueDashboard/EstoqueDashboard.vue'
 import FornecedorView from '@/views/Fornecedor/FornecedorView.vue'
 import ConversaoUnidadesView from '@/views/ConversaoUnidades/ConversaoUnidadesView.vue'
+import ClienteView from '@/views/Cliente/ClienteView.vue'
+import RelatoriosView from '@/views/Relatorios/RelatoriosView.vue'
+import DevolucoesView from '@/views/Devolucoes/DevolucoesView.vue'
 
 const routes = [
   {
@@ -89,6 +92,24 @@ const routes = [
     path: '/conversao-unidades',
     name: 'ConversaoUnidades',
     component: ConversaoUnidadesView,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/clientes',
+    name: 'Clientes',
+    component: ClienteView,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/relatorios',
+    name: 'Relatorios',
+    component: RelatoriosView,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/devolucoes',
+    name: 'Devolucoes',
+    component: DevolucoesView,
     meta: { requiresAuth: true },
   },
   // Rota antiga para compatibilidade

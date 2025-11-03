@@ -2,7 +2,7 @@ import axios from 'axios'
 import { useAuthStore } from '@/stores/authStore'
 
 const api = axios.create({
-  // baseURL: 'https://localhost:44347/api',
+  //baseURL: 'https://localhost:7143/api',
   baseURL: 'https://dropeimports.com.br/api',
 })
 

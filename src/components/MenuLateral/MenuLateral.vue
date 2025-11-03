@@ -25,7 +25,7 @@
             ><i class="fas fa-box mr-3 w-5"></i>Produtos</router-link
           >
         </li>
-        <li>
+        <!-- <li>
           <router-link
             to="/categorias"
             class="flex items-center px-3 py-3 text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
@@ -38,7 +38,7 @@
             class="flex items-center px-3 py-3 text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
             ><i class="fas fa-star mr-3 w-5"></i>Marcas</router-link
           >
-        </li>
+        </li> -->
         <li>
           <router-link
             to="/fornecedores"
