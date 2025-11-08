@@ -45,7 +45,11 @@
             />
             Manter conectado
           </label>
-          <a href="#" class="text-blue-500 text-sm hover:underline transition">
+          <a
+            @click.prevent="mostrarMensagemSuporte"
+            href="#"
+            class="text-blue-500 text-sm hover:underline transition cursor-pointer"
+          >
             Esqueceu a senha?
           </a>
         </div>

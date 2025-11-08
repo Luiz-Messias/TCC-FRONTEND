@@ -129,6 +129,16 @@
         </li>
       </ul>
     </nav>
+    
+    <!-- Botão Sair -->
+    <div class="border-t border-gray-200 p-3">
+      <button
+        @click="Sair"
+        class="flex items-center w-full px-3 py-3 text-red-600 hover:bg-red-50 rounded-md transition-colors font-medium"
+      >
+        <i class="fas fa-sign-out-alt mr-3 w-5"></i>Sair do Sistema
+      </button>
+    </div>
   </div>
 </template>
 

@@ -151,10 +151,17 @@ export const useDevolucaoStore = defineStore('devolucao', () => {
 
   const carregarPedidosConcluidos = async () => {
     try {
-      const resposta = await api.get('/pedido', {
-        params: { status: 'CONCLUIDO' },
-      })
-      pedidos.value = resposta.data.data?.items || resposta.data.items || resposta.data || []
+      // Busca todos os pedidos (não cancelados) para permitir devoluções
+      const resposta = await api.get('/pedido')
+
+      let todosPedidos = resposta.data.data?.items || resposta.data.items || resposta.data || []
+
+      // Filtra apenas pedidos que não estão cancelados (podem ter devolução)
+      pedidos.value = todosPedidos.filter(
+        (pedido) => pedido.status !== 'CANCELADO' && pedido.status !== 'Cancelado',
+      )
+
+      console.log('Pedidos disponíveis para devolução:', pedidos.value.length, pedidos.value)
     } catch (erro) {
       console.error('Erro ao carregar pedidos:', erro)
       pedidos.value = []

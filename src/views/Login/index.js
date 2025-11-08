@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import { useAuthStore } from '@/stores/authStore'
 import { useRouter } from 'vue-router'
+import Swal from 'sweetalert2'
 
 export default {
   name: 'Login',
@@ -48,12 +49,29 @@ export default {
       }
     }
 
+    // Mostra mensagem de suporte ao clicar em "Esqueceu a senha?"
+    const mostrarMensagemSuporte = () => {
+      Swal.fire({
+        icon: 'info',
+        title: 'Recuperação de Senha',
+        html: '<p style="font-size: 16px; color: #4b5563;">Para redefinir sua senha, entre em contato com o <strong>administrador do sistema</strong> ou com o <strong>suporte técnico</strong>.</p>',
+        confirmButtonText: 'Entendi',
+        confirmButtonColor: '#3b82f6',
+        customClass: {
+          popup: 'rounded-2xl',
+          title: 'text-xl font-semibold',
+          confirmButton: 'px-6 py-2 rounded-lg',
+        },
+      })
+    }
+
     return {
       email,
       password,
       keepConnected,
       handleLogin,
       onKeepConnectedChange,
+      mostrarMensagemSuporte,
     }
   },
 }

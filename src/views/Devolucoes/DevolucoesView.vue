@@ -6,6 +6,9 @@
       <p class="text-gray-600">Gerencie as devoluções de produtos dos clientes</p>
     </div>
 
+    <!-- Modal de Devolução -->
+    <DevolucaoModal />
+
     <!-- Filtros e Ações -->
     <div class="bg-white rounded-lg shadow p-4 mb-6">
       <div class="flex flex-col md:flex-row gap-4 items-end">
@@ -204,35 +207,6 @@
               <i class="fas fa-chevron-right"></i>
             </button>
           </nav>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal de Confirmação -->
-    <div
-      v-if="devolucaoParaExcluir"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    >
-      <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
-        <h3 class="text-lg font-medium mb-4">Confirmar Exclusão</h3>
-        <p class="text-sm text-gray-500 mb-4">
-          Tem certeza que deseja excluir a devolução
-          <strong>#{{ devolucaoParaExcluir.id }}</strong
-          >?
-        </p>
-        <div class="flex gap-3 justify-end">
-          <button
-            @click="devolucaoParaExcluir = null"
-            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border rounded-md hover:bg-gray-50"
-          >
-            Cancelar
-          </button>
-          <button
-            @click="excluirConfirmado"
-            class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
-          >
-            Excluir
-          </button>
         </div>
       </div>
     </div>
