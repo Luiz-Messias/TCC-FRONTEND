@@ -25,8 +25,13 @@ export default {
     const route = useRoute()
 
     const estaAutenticado = computed(() => {
-      // Não exibe o menu lateral nas rotas de login e splash
-      return authStore.estaAutenticado && route.path !== '/login' && route.path !== '/'
+      // Não exibe o menu lateral nas rotas de login, splash e manual
+      return (
+        authStore.estaAutenticado &&
+        route.path !== '/login' &&
+        route.path !== '/' &&
+        route.path !== '/manual'
+      )
     })
 
     return {

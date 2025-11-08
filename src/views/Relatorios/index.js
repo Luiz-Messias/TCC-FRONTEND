@@ -48,7 +48,7 @@ export default {
       if (dataInicio.value && dataFim.value) {
         return `${new Date(dataInicio.value).toLocaleDateString('pt-BR')} - ${new Date(dataFim.value).toLocaleDateString('pt-BR')}`
       }
-      
+
       const periodos = {
         mes: 'Últimos 30 dias',
         trimestre: 'Últimos 90 dias',
@@ -87,9 +87,7 @@ export default {
         const pedidos = pedidoStore.pedidos
         estatisticasPedidos.value.totalPedidos = pedidos.filter((p) => p.tipo === 1).length
         estatisticasPedidos.value.totalOrcamentos = pedidos.filter((p) => p.tipo === 0).length
-        estatisticasPedidos.value.pedidosAtivos = pedidos.filter(
-          (p) => p.status === 'ATIVO',
-        ).length
+        estatisticasPedidos.value.pedidosAtivos = pedidos.filter((p) => p.status === 'ATIVO').length
         estatisticasPedidos.value.pedidosConcluidos = pedidos.filter(
           (p) => p.status === 'CONCLUIDO',
         ).length

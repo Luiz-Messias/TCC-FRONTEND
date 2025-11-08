@@ -27,7 +27,7 @@ export default {
       produtoId: null,
       tipoMovimentacao: 'ENTRADA',
       quantidade: null,
-      lote: '',
+      numeroLote: '', // ✅ CORRIGIDO: Usar apenas numeroLote
       dataFabricacao: '',
       dataValidade: '',
       observacoes: '',

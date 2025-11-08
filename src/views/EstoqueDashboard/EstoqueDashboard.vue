@@ -9,7 +9,7 @@
     <!-- Cards de Resumo -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
       <!-- Total de Produtos -->
-      <div class="bg-white rounded-lg shadow-md p-6">
+      <!-- <div class="bg-white rounded-lg shadow-md p-6">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm font-medium text-gray-600">Total de Produtos</p>
@@ -19,13 +19,13 @@
             <i class="fas fa-box text-blue-600 text-xl"></i>
           </div>
         </div>
-      </div>
+      </div> -->
 
       <!-- Valor Total do Estoque -->
       <div class="bg-white rounded-lg shadow-md p-6">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-gray-600">Valor Total</p>
+            <p class="text-sm font-medium text-gray-600">Valor Total do produtos</p>
             <p class="text-3xl font-bold text-gray-800 mt-2">{{ formatarMoeda(valorTotal) }}</p>
           </div>
           <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">

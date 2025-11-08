@@ -54,7 +54,7 @@ export const useProdutoStore = defineStore('produto', () => {
         direcao: ordenacao.value.direcao,
       }
 
-  const resposta = await api.get('/produto', { params })
+      const resposta = await api.get('/produto', { params })
 
       // Ajustado para PagedResult do backend
       if (resposta.data.data) {
@@ -77,7 +77,7 @@ export const useProdutoStore = defineStore('produto', () => {
 
   const obterProduto = async (id) => {
     try {
-  const resposta = await api.get(`/produto/${id}`)
+      const resposta = await api.get(`/produto/${id}`)
       return resposta.data.data || resposta.data
     } catch (erro) {
       const mensagem = parseApiError(erro)
@@ -89,7 +89,7 @@ export const useProdutoStore = defineStore('produto', () => {
   const criarProduto = async (dadosProduto) => {
     loading.value = true
     try {
-  const resposta = await api.post('/produto', dadosProduto)
+      const resposta = await api.post('/produto', dadosProduto)
       toast.success('Produto criado com sucesso!')
       await listarProdutos()
       fecharModal()
@@ -122,7 +122,7 @@ export const useProdutoStore = defineStore('produto', () => {
 
   const excluirProduto = async (id) => {
     try {
-  await api.delete(`/produto/${id}`)
+      await api.delete(`/produto/${id}`)
       toast.success('Produto excluído com sucesso!')
       await listarProdutos()
     } catch (erro) {

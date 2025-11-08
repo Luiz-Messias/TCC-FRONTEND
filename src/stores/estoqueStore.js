@@ -61,7 +61,7 @@ export const useEstoqueStore = defineStore('estoque', () => {
   const listarSaldos = async () => {
     carregando.value = true
     try {
-  const resposta = await api.get('/EstoqueSaldo')
+      const resposta = await api.get('/EstoqueSaldo')
 
       // ✅ CORRIGIDO: API retorna dados paginados dentro de resposta.data.data.items
       if (resposta.data?.success && resposta.data.data) {
@@ -96,7 +96,7 @@ export const useEstoqueStore = defineStore('estoque', () => {
 
   const buscarSaldo = async (produtoId) => {
     try {
-  const resposta = await api.get(`/EstoqueSaldo/${produtoId}`)
+      const resposta = await api.get(`/EstoqueSaldo/${produtoId}`)
       return resposta.data.data
     } catch (erro) {
       const mensagem = parseApiError(erro)
@@ -113,7 +113,7 @@ export const useEstoqueStore = defineStore('estoque', () => {
         estoqueMaximo: dados.estoqueMaximo,
         valorUnitario: dados.valorUnitario,
       }
-  const resposta = await api.put(`/EstoqueSaldo/${produtoId}/configuracao`, payload)
+      const resposta = await api.put(`/EstoqueSaldo/${produtoId}/configuracao`, payload)
 
       toast.success('Configuração de estoque atualizada com sucesso')
       await listarSaldos()
@@ -130,8 +130,8 @@ export const useEstoqueStore = defineStore('estoque', () => {
   const listarAlertas = async () => {
     try {
       const [baixos, criticos] = await Promise.all([
-  api.get('/EstoqueSaldo/baixos'),
-  api.get('/EstoqueSaldo/criticos'),
+        api.get('/EstoqueSaldo/baixos'),
+        api.get('/EstoqueSaldo/criticos'),
       ])
       return [
         ...(baixos.data.data || []).map((p) => ({ ...p, tipo: 'baixo' })),
@@ -187,7 +187,7 @@ export const useEstoqueStore = defineStore('estoque', () => {
 
   const listarLotes = async (produtoId = null) => {
     try {
-  const resposta = await api.get('/EstoqueLote')
+      const resposta = await api.get('/EstoqueLote')
       let lotesData = resposta.data.data || []
 
       if (produtoId) {
@@ -204,10 +204,10 @@ export const useEstoqueStore = defineStore('estoque', () => {
 
   const listarLotesPorProduto = async (produtoId) => {
     try {
-  const resposta = await api.get(`/EstoqueLote/produto/${produtoId}`)
-  const lotes = resposta.data.data || resposta.data || []
-  // Mantém apenas lotes disponíveis quando propriedade existir
-  return Array.isArray(lotes) ? lotes.filter((lote) => lote.ativo !== false) : []
+      const resposta = await api.get(`/EstoqueLote/produto/${produtoId}`)
+      const lotes = resposta.data.data || resposta.data || []
+      // Mantém apenas lotes disponíveis quando propriedade existir
+      return Array.isArray(lotes) ? lotes.filter((lote) => lote.ativo !== false) : []
     } catch (erro) {
       const mensagem = parseApiError(erro)
       toast.error(mensagem)
@@ -217,7 +217,7 @@ export const useEstoqueStore = defineStore('estoque', () => {
 
   const listarVencimentos = async (dias = 30) => {
     try {
-  const resposta = await api.get('/EstoqueLote/proximos-vencimento', {
+      const resposta = await api.get('/EstoqueLote/proximos-vencimento', {
         params: { dias },
       })
       return resposta.data.data || []
@@ -241,7 +241,7 @@ export const useEstoqueStore = defineStore('estoque', () => {
         ...filtrosMovimentacoes.value,
       }
 
-  const resposta = await api.get('/EstoqueMovimentacao', { params })
+      const resposta = await api.get('/EstoqueMovimentacao', { params })
 
       if (resposta.data.data) {
         const pagedResult = resposta.data.data
@@ -262,7 +262,7 @@ export const useEstoqueStore = defineStore('estoque', () => {
   const registrarMovimentacao = async (dados, fecharModalAposSalvar = true) => {
     carregandoModal.value = true
     try {
-  const resposta = await api.post('/EstoqueMovimentacao/registrar', dados)
+      const resposta = await api.post('/EstoqueMovimentacao/registrar', dados)
 
       console.log('✅ Movimentação registrada:', resposta.data.data)
 
@@ -295,7 +295,7 @@ export const useEstoqueStore = defineStore('estoque', () => {
 
   const listarMovimentacoesRecentes = async (quantidade = 20) => {
     try {
-  const resposta = await api.get('/EstoqueMovimentacao/recentes', {
+      const resposta = await api.get('/EstoqueMovimentacao/recentes', {
         params: { quantidade },
       })
       return resposta.data.data || []
@@ -354,7 +354,7 @@ export const useEstoqueStore = defineStore('estoque', () => {
 
   const carregarEstatisticas = async () => {
     try {
-  const resposta = await api.get('/EstoqueDashboard')
+      const resposta = await api.get('/EstoqueDashboard')
       estatisticas.value = resposta.data.data
       return resposta.data.data
     } catch (erro) {
@@ -380,7 +380,7 @@ export const useEstoqueStore = defineStore('estoque', () => {
 
   const verificarDisponibilidade = async (produtoId, quantidadeDesejada) => {
     try {
-  const resposta = await api.get(`/EstoqueSaldo/${produtoId}`)
+      const resposta = await api.get(`/EstoqueSaldo/${produtoId}`)
 
       if (!resposta.data) {
         toast.error('Produto não encontrado no estoque')

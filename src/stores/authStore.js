@@ -7,14 +7,15 @@ import { parseApiError } from '@/utils/parseApiError'
 
 // Store de autenticação do sistema de gestão de bebidas
 export const useAuthStore = defineStore('auth', () => {
-  const token = ref(localStorage.getItem('token') || '')
-  const role = ref(localStorage.getItem('role') || 'User')
+  // ✅ CORRIGIDO: Verificar ambos localStorage e sessionStorage
+  const token = ref(localStorage.getItem('token') || sessionStorage.getItem('token') || '')
+  const role = ref(localStorage.getItem('role') || sessionStorage.getItem('role') || 'User')
 
   const estaAutenticado = computed(() => !!token.value)
 
   const login = async ({ email, password, manterConectado }) => {
     try {
-  const resposta = await api.post('/Token/LoginUser', {
+      const resposta = await api.post('Token/LoginUser', {
         email,
         password,
       })

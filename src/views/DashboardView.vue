@@ -55,8 +55,8 @@
         </div>
       </router-link>
 
-      <!-- Converter Unidades -->
-      <router-link to="/conversao">
+      <!-- ✅ CORRIGIDO: Rota para conversão de unidades -->
+      <router-link to="/conversao-unidades">
         <div
           class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer"
         >
@@ -72,52 +72,35 @@
         </div>
       </router-link>
 
-      <!-- Cancelar Pedido -->
-      <router-link to="/pedido/cancelar">
-        <div
-          class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer"
-        >
-          <div class="flex items-center mb-4">
-            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mr-4">
-              <i class="fas fa-times text-red-600 text-xl"></i>
-            </div>
-            <div>
-              <h3 class="font-semibold text-gray-800">Cancelar</h3>
-              <p class="text-sm text-gray-600">Pedido</p>
-            </div>
-          </div>
-        </div>
-      </router-link>
-
-      <!-- Atualizar Preço -->
-      <router-link to="/preco/atualizar">
+      <!-- ✅ CORRIGIDO: Dashboard de Estoque -->
+      <router-link to="/estoque/dashboard">
         <div
           class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer"
         >
           <div class="flex items-center mb-4">
             <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center mr-4">
-              <i class="fas fa-dollar-sign text-yellow-600 text-xl"></i>
+              <i class="fas fa-warehouse text-yellow-600 text-xl"></i>
             </div>
             <div>
-              <h3 class="font-semibold text-gray-800">Atualizar</h3>
-              <p class="text-sm text-gray-600">Preço</p>
+              <h3 class="font-semibold text-gray-800">Dashboard</h3>
+              <p class="text-sm text-gray-600">Estoque</p>
             </div>
           </div>
         </div>
       </router-link>
 
-      <!-- Calcular Impostos -->
-      <router-link to="/impostos/calcular">
+      <!-- ✅ CORRIGIDO: Relatórios -->
+      <router-link to="/relatorios">
         <div
           class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer"
         >
           <div class="flex items-center mb-4">
             <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mr-4">
-              <i class="fas fa-calculator text-indigo-600 text-xl"></i>
+              <i class="fas fa-chart-bar text-indigo-600 text-xl"></i>
             </div>
             <div>
-              <h3 class="font-semibold text-gray-800">Calcular</h3>
-              <p class="text-sm text-gray-600">Impostos</p>
+              <h3 class="font-semibold text-gray-800">Ver</h3>
+              <p class="text-sm text-gray-600">Relatórios</p>
             </div>
           </div>
         </div>

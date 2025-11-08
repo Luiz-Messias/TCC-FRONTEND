@@ -76,10 +76,7 @@
                 Data
                 <i
                   v-if="ordenacao.campo === 'dataDevolucao'"
-                  :class="[
-                    'fas ml-1',
-                    ordenacao.direcao === 'asc' ? 'fa-sort-up' : 'fa-sort-down',
-                  ]"
+                  :class="['fas ml-1', ordenacao.direcao === 'asc' ? 'fa-sort-up' : 'fa-sort-down']"
                 ></i>
               </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
@@ -91,9 +88,7 @@
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                 Motivo
               </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Valor
-              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Valor</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                 Status
               </th>
@@ -117,7 +112,12 @@
                 R$ {{ (dev.valorTotal || 0).toFixed(2) }}
               </td>
               <td class="px-6 py-4">
-                <span :class="['px-2 py-1 text-xs font-semibold rounded-full', obterCorStatus(dev.status)]">
+                <span
+                  :class="[
+                    'px-2 py-1 text-xs font-semibold rounded-full',
+                    obterCorStatus(dev.status),
+                  ]"
+                >
                   <i :class="['fas', obterIconeStatus(dev.status), 'mr-1']"></i>
                   {{ dev.status }}
                 </span>

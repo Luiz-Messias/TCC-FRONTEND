@@ -221,9 +221,7 @@
             </div>
             <div class="flex justify-between items-center">
               <span class="text-gray-600">Estoque Crítico</span>
-              <span class="font-bold text-red-600">{{
-                estatisticasEstoque.produtosCriticos
-              }}</span>
+              <span class="font-bold text-red-600">{{ estatisticasEstoque.produtosCriticos }}</span>
             </div>
             <router-link
               to="/estoque/dashboard"

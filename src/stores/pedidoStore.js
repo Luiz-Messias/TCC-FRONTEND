@@ -123,8 +123,8 @@ export const usePedidoStore = defineStore('pedido', () => {
         }
       }
 
-  // Criar o pedido
-  const resposta = await api.post('/pedido/criar/pedido', dadosPedido)
+      // Criar o pedido
+      const resposta = await api.post('/pedido/criar/pedido', dadosPedido)
 
       // Se o pedido foi criado com sucesso, dar baixa no estoque
       const pedidoCriado = resposta.data.data || resposta.data
@@ -153,7 +153,7 @@ export const usePedidoStore = defineStore('pedido', () => {
     loading.value = true
     try {
       // Orçamento NÃO precisa verificar estoque
-  const resposta = await api.post('/pedido/orcamentos', dadosOrcamento)
+      const resposta = await api.post('/pedido/orcamentos', dadosOrcamento)
       const orcamentoCriado = resposta.data.data || resposta.data
 
       toast.success('Orçamento criado com sucesso!')
@@ -172,7 +172,7 @@ export const usePedidoStore = defineStore('pedido', () => {
   const converterOrcamentoEmPedido = async (orcamentoId) => {
     loading.value = true
     try {
-  const resposta = await api.post(`/pedido/${orcamentoId}/converter`)
+      const resposta = await api.post(`/pedido/${orcamentoId}/converter`)
       const pedidoConvertido = resposta.data.data || resposta.data
 
       toast.success('Orçamento convertido em pedido com sucesso! Estoque atualizado.')

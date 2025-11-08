@@ -251,7 +251,7 @@ export default {
 
     const aplicarMascaraCpfCnpj = (event) => {
       let value = event.target.value.replace(/\D/g, '')
-      
+
       if (value.length <= 11) {
         // CPF
         value = value.replace(/(\d{3})(\d)/, '$1.$2')
@@ -264,7 +264,7 @@ export default {
         value = value.replace(/\.(\d{3})(\d)/, '.$1/$2')
         value = value.replace(/(\d{4})(\d)/, '$1-$2')
       }
-      
+
       cliente.value.cpfCnpj = value
     }
 
@@ -274,7 +274,7 @@ export default {
         try {
           const resposta = await api.get(`/viacep/${cep}`)
           const endereco = resposta.data.data || resposta.data
-          
+
           if (endereco && !endereco.erro) {
             cliente.value.logradouro = endereco.logradouro || cliente.value.logradouro
             cliente.value.bairro = endereco.bairro || cliente.value.bairro

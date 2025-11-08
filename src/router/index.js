@@ -16,6 +16,7 @@ import ConversaoUnidadesView from '@/views/ConversaoUnidades/ConversaoUnidadesVi
 import ClienteView from '@/views/Cliente/ClienteView.vue'
 import RelatoriosView from '@/views/Relatorios/RelatoriosView.vue'
 import DevolucoesView from '@/views/Devolucoes/DevolucoesView.vue'
+import ManualUsuarioView from '@/views/ManualUsuario/ManualUsuario.vue'
 
 const routes = [
   {
@@ -111,6 +112,12 @@ const routes = [
     name: 'Devolucoes',
     component: DevolucoesView,
     meta: { requiresAuth: true },
+  },
+  {
+    path: '/manual',
+    name: 'ManualUsuario',
+    component: ManualUsuarioView,
+    meta: { requiresAuth: false },
   },
   // Rota antiga para compatibilidade
   {

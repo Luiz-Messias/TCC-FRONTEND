@@ -238,7 +238,7 @@ export const useClienteStore = defineStore('cliente', () => {
   const formatarCpfCnpj = (cpfCnpj) => {
     if (!cpfCnpj) return ''
     const limpo = cpfCnpj.replace(/\D/g, '')
-    
+
     if (limpo.length === 11) {
       // CPF: 000.000.000-00
       return limpo.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
@@ -252,7 +252,7 @@ export const useClienteStore = defineStore('cliente', () => {
   const formatarTelefone = (telefone) => {
     if (!telefone) return ''
     const limpo = telefone.replace(/\D/g, '')
-    
+
     if (limpo.length === 10) {
       return limpo.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3')
     } else if (limpo.length === 11) {

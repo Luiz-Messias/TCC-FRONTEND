@@ -3,6 +3,7 @@ import { storeToRefs } from 'pinia'
 import { usePedidoStore } from '@/stores/pedidoStore'
 import { useProdutoStore } from '@/stores/produtoStore'
 import SeletorProduto from '@/components/SeletorProduto/SeletorProduto.vue'
+import { toast } from 'vue3-toastify' // ✅ ADICIONADO: Importar toast
 
 export default {
   name: 'PedidoView',
@@ -55,18 +56,21 @@ export default {
     const salvarPedido = async () => {
       try {
         if (!cliente.value) {
-          alert('Selecione um cliente')
+          toast.error('Selecione um cliente') // ✅ CORRIGIDO: Usar toast
           return
         }
 
         if (produtosSelecionados.value.length === 0) {
-          alert('Adicione pelo menos um produto')
+          toast.error('Adicione pelo menos um produto') // ✅ CORRIGIDO: Usar toast
           return
         }
 
+        // ✅ CORRIGIDO: Melhor formatação de data
+        const dataPedidoISO = new Date(data.value).toISOString()
+
         const dadosPedido = {
           clienteId: cliente.value,
-          dataPedido: new Date(data.value + 'T' + new Date().toTimeString().slice(0, 8)).toISOString(),
+          dataPedido: dataPedidoISO,
           observacoes: observacoes.value || '',
           itens: produtosSelecionados.value.map((item) => ({
             produtoId: item.id,
@@ -79,6 +83,7 @@ export default {
         limparFormulario()
       } catch (erro) {
         console.error('Erro ao salvar pedido:', erro)
+        toast.error('Erro ao salvar pedido') // ✅ ADICIONADO: Feedback de erro
       }
     }
 
