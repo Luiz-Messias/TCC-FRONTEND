@@ -77,33 +77,62 @@ export default {
       try {
         calcularPeriodo()
 
-        // Carregar dados dos pedidos
-        await pedidoStore.listarPedidosComParametros({
-          dataInicio: dataInicio.value,
-          dataFim: dataFim.value,
-        })
+        // Carregar TODOS os pedidos primeiro
+        await pedidoStore.listarPedidos()
 
         // Processar estatísticas de pedidos
         const pedidos = pedidoStore.pedidos
-        estatisticasPedidos.value.totalPedidos = pedidos.filter((p) => p.tipo === 1).length
-        estatisticasPedidos.value.totalOrcamentos = pedidos.filter((p) => p.tipo === 0).length
-        estatisticasPedidos.value.pedidosAtivos = pedidos.filter((p) => p.status === 'ATIVO').length
-        estatisticasPedidos.value.pedidosConcluidos = pedidos.filter(
-          (p) => p.status === 'CONCLUIDO',
-        ).length
-        estatisticasPedidos.value.pedidosCancelados = pedidos.filter(
-          (p) => p.status === 'CANCELADO',
-        ).length
 
-        const pedidosConcluidos = pedidos.filter((p) => p.status === 'CONCLUIDO')
-        estatisticasPedidos.value.totalVendas = pedidosConcluidos.reduce(
-          (sum, p) => sum + (p.valorTotal || 0),
-          0,
+        // Mapear status numérico para string se necessário
+        const statusMap = {
+          0: 'ATIVO',
+          1: 'CONCLUIDO',
+          2: 'CANCELADO',
+        }
+
+        // Normalizar pedidos
+        const pedidosNormalizados = pedidos.map((p) => ({
+          ...p,
+          status: typeof p.status === 'number' ? statusMap[p.status] : p.status,
+          tipo: typeof p.tipo === 'number' ? p.tipo : p.tipo === 'PEDIDO' ? 1 : 0,
+        }))
+
+        // Tipo: 0 = Orçamento, 1 = Pedido
+        const orcamentos = pedidosNormalizados.filter((p) => p.tipo === 0 || p.tipo === 'ORCAMENTO')
+        const pedidosVenda = pedidosNormalizados.filter((p) => p.tipo === 1 || p.tipo === 'PEDIDO')
+
+        estatisticasPedidos.value.totalOrcamentos = orcamentos.length
+        estatisticasPedidos.value.totalPedidos = pedidosVenda.length
+        const ativos = pedidosNormalizados.filter((p) => p.status === 'ATIVO' || p.status === 0)
+        const concluidos = pedidosNormalizados.filter(
+          (p) => p.status === 'CONCLUIDO' || p.status === 1,
         )
-        estatisticasPedidos.value.ticketMedio =
-          pedidosConcluidos.length > 0
-            ? estatisticasPedidos.value.totalVendas / pedidosConcluidos.length
-            : 0
+        const cancelados = pedidosNormalizados.filter(
+          (p) => p.status === 'CANCELADO' || p.status === 2,
+        )
+
+        estatisticasPedidos.value.pedidosAtivos = ativos.length
+        estatisticasPedidos.value.pedidosConcluidos = concluidos.length
+        estatisticasPedidos.value.pedidosCancelados = cancelados.length
+
+        // Apenas pedidos concluídos contam para vendas (não orçamentos!)
+        const pedidosConcluidos = pedidosNormalizados.filter((p) => {
+          const statusConcluido = p.status === 'CONCLUIDO' || p.status === 1
+          const ehPedido = p.tipo === 1 || p.tipo === 'PEDIDO'
+          return statusConcluido && ehPedido
+        })
+
+        let totalVendas = 0
+        pedidosConcluidos.forEach((p) => {
+          const valor = parseFloat(p.total || p.valorTotal) || 0
+          totalVendas += valor
+        })
+
+        const ticketMedio =
+          pedidosConcluidos.length > 0 ? totalVendas / pedidosConcluidos.length : 0
+
+        estatisticasPedidos.value.totalVendas = totalVendas
+        estatisticasPedidos.value.ticketMedio = ticketMedio
 
         // Carregar produtos
         await produtoStore.listarProdutos()
@@ -135,9 +164,27 @@ export default {
           .sort((a, b) => b.vendas - a.vendas)
       } catch (erro) {
         console.error('Erro ao carregar relatórios:', erro)
+
+        // Resetar para valores padrão em caso de erro
+        estatisticasPedidos.value = {
+          totalPedidos: 0,
+          totalOrcamentos: 0,
+          totalVendas: 0,
+          ticketMedio: 0,
+          pedidosAtivos: 0,
+          pedidosConcluidos: 0,
+          pedidosCancelados: 0,
+        }
       } finally {
         loading.value = false
       }
+    }
+
+    const formatarMoeda = (valor) => {
+      return new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+      }).format(valor || 0)
     }
 
     const exportarPDF = () => {
@@ -166,6 +213,7 @@ export default {
       carregarRelatorios,
       exportarPDF,
       exportarExcel,
+      formatarMoeda,
     }
   },
 }

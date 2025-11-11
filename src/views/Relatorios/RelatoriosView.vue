@@ -111,7 +111,7 @@
               <div>
                 <p class="text-sm text-gray-600">Total em Vendas</p>
                 <p class="text-2xl font-bold text-green-600">
-                  R$ {{ estatisticasPedidos.totalVendas.toFixed(2) }}
+                  {{ formatarMoeda(estatisticasPedidos.totalVendas) }}
                 </p>
               </div>
               <div class="bg-green-100 p-3 rounded-full">
@@ -125,7 +125,7 @@
               <div>
                 <p class="text-sm text-gray-600">Ticket Médio</p>
                 <p class="text-2xl font-bold text-gray-900">
-                  R$ {{ estatisticasPedidos.ticketMedio.toFixed(2) }}
+                  {{ formatarMoeda(estatisticasPedidos.ticketMedio) }}
                 </p>
               </div>
               <div class="bg-yellow-100 p-3 rounded-full">

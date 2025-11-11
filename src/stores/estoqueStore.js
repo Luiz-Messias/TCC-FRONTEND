@@ -417,7 +417,7 @@ export const useEstoqueStore = defineStore('estoque', () => {
 
       // Se for erro 404, o produto não tem estoque cadastrado
       if (erro.response?.status === 404) {
-        toast.error('Produto não possui estoque cadastrado')
+        // Não exibir toast aqui - deixar para quem chamar a função decidir
         return {
           disponivel: false,
           mensagem: 'Produto sem estoque cadastrado',
@@ -426,10 +426,10 @@ export const useEstoqueStore = defineStore('estoque', () => {
 
       // Outros erros
       const mensagem = parseApiError(erro)
-      toast.error(mensagem)
+      // Não exibir toast aqui - deixar para quem chamar a função decidir
       return {
         disponivel: false,
-        mensagem: 'Erro ao verificar disponibilidade',
+        mensagem: mensagem || 'Erro ao verificar disponibilidade',
       }
     }
   }

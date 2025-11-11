@@ -3,9 +3,11 @@
     <MenuLateral v-if="estaAutenticado" />
     <div class="flex-1 flex flex-col overflow-hidden">
       <main class="flex-1 overflow-y-auto">
-        <transition name="fade" mode="out-in">
-          <router-view />
-        </transition>
+        <router-view v-slot="{ Component }">
+          <transition name="fade" mode="out-in">
+            <component :is="Component" />
+          </transition>
+        </router-view>
       </main>
     </div>
   </div>

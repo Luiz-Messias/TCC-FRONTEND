@@ -1,11 +1,12 @@
 <template>
   <div class="w-60 bg-white border-r-2 shadow-lg h-screen flex flex-col flex-shrink-0">
     <div class="flex justify-center cursor-pointer py-4">
-      <router-link to="/home">
+      <router-link to="/home" custom v-slot="{ navigate }">
         <img
+          @click="navigate"
           src="@/assets/logo-preto-branco.png"
           alt="Logo Arcca Bebidas"
-          class="w-[120px] h-[120px]"
+          class="w-[120px] h-[120px] cursor-pointer"
         />
       </router-link>
     </div>
@@ -122,6 +123,13 @@
         </li>
         <li>
           <router-link
+            to="/rentabilidade"
+            class="flex items-center px-3 py-3 text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+            ><i class="fas fa-dollar-sign mr-3 w-5"></i>Rentabilidade</router-link
+          >
+        </li>
+        <li>
+          <router-link
             to="/devolucoes"
             class="flex items-center px-3 py-3 text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
             ><i class="fas fa-undo mr-3 w-5"></i>Devoluções</router-link
@@ -129,7 +137,7 @@
         </li>
       </ul>
     </nav>
-    
+
     <!-- Botão Sair -->
     <div class="border-t border-gray-200 p-3">
       <button

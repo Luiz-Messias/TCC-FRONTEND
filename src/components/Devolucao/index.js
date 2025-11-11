@@ -2,6 +2,7 @@ import { storeToRefs } from 'pinia'
 import { ref, computed, watch } from 'vue'
 import { useDevolucaoStore } from '@/stores/devolucaoStore'
 import { usePedidoStore } from '@/stores/pedidoStore'
+import api from '@/api/axiosConfig'
 import Swal from 'sweetalert2'
 
 export default {
@@ -34,14 +35,37 @@ export default {
 
     const dataHoje = new Date().toISOString().split('T')[0]
 
+    // Computed para verificar se pode editar (apenas PENDENTE pode ser editado)
+    const podeEditar = computed(() => {
+      return !modoEdicao.value || formulario.value.status === 'PENDENTE'
+    })
+
     // Computed para calcular valor total da devolução
     const valorTotalDevolucao = computed(() => {
-      return formulario.value.itens
+      const total = formulario.value.itens
         .filter((item) => item.selecionado)
-        .reduce((total, item) => {
-          return total + (item.quantidadeDevolver || 0) * (item.precoUnitario || 0)
+        .reduce((soma, item) => {
+          const qtd = parseFloat(item.quantidadeDevolver) || 0
+          const preco = parseFloat(item.precoUnitario) || 0
+          return soma + qtd * preco
         }, 0)
+
+      console.log('Valor total calculado:', total)
+      return total
     })
+
+    // Watch para auto-preencher quantidade quando selecionar um item
+    watch(
+      () => formulario.value.itens,
+      (novosItens) => {
+        novosItens.forEach((item) => {
+          if (item.selecionado && (!item.quantidadeDevolver || item.quantidadeDevolver === 0)) {
+            item.quantidadeDevolver = item.quantidade
+          }
+        })
+      },
+      { deep: true },
+    )
 
     // Carrega pedidos concluídos ao abrir o modal
     watch(modalAberto, async (novoValor) => {
@@ -97,22 +121,68 @@ export default {
       try {
         const pedido = await pedidoStore.obterPedido(formulario.value.pedidoId)
 
-        formulario.value.clienteNome = pedido.clienteNome || pedido.cliente?.nome || ''
+        console.log('✅ Pedido carregado:', pedido)
+
+        // Busca o nome do cliente se não vier no pedido
+        if (pedido.clienteId && !pedido.clienteNome) {
+          try {
+            const clienteResponse = await api.get(`/cliente/${pedido.clienteId}`)
+            formulario.value.clienteNome =
+              clienteResponse.data.data?.nome ||
+              clienteResponse.data.nome ||
+              'Cliente não encontrado'
+          } catch {
+            formulario.value.clienteNome = 'Cliente não encontrado'
+          }
+        } else {
+          formulario.value.clienteNome = pedido.clienteNome || pedido.cliente?.nome || ''
+        }
+
+        // Busca todos os produtos para mapear os nomes
+        const produtosResponse = await api.get('/produto', { params: { itensPorPagina: 1000 } })
+        const produtos =
+          produtosResponse.data.data?.items ||
+          produtosResponse.data.items ||
+          produtosResponse.data ||
+          []
+
+        // Cria mapa de produtos
+        const produtosMap = {}
+        produtos.forEach((produto) => {
+          produtosMap[produto.id] = produto
+        })
 
         // Mapeia os itens do pedido
-        formulario.value.itens = (pedido.itens || []).map((item) => ({
-          id: item.id,
-          produtoId: item.produtoId,
-          produtoNome: item.produtoNome || item.produto?.nome || 'Produto não encontrado',
-          produtoCodigo: item.produtoCodigo || item.produto?.codigo || '',
-          unidade: item.unidade || item.produto?.unidade || 'UN',
-          quantidade: item.quantidade || 0,
-          quantidadeDevolver: 0,
-          precoUnitario: item.precoUnitario || item.preco || 0,
-          selecionado: false,
-        }))
+        formulario.value.itens = (pedido.itens || []).map((item) => {
+          const produto = produtosMap[item.produtoId]
+
+          // Garante que o preço seja um número válido
+          let preco = parseFloat(item.precoUnitario) || 0
+
+          const itemMapeado = {
+            id: item.itemPedidoId || item.id,
+            produtoId: item.produtoId,
+            produtoNome: produto?.nome || item.produtoNome || 'Produto não encontrado',
+            produtoCodigo: produto?.codigo || item.produtoCodigo || '',
+            unidade: produto?.unidade || item.unidade || 'UN',
+            quantidade: parseFloat(item.quantidade) || 0,
+            quantidadeDevolver: 0,
+            precoUnitario: preco,
+            selecionado: false,
+          }
+
+          return itemMapeado
+        })
+
+        console.log('✅ Total de itens carregados:', formulario.value.itens.length)
       } catch (erro) {
         console.error('Erro ao carregar pedido:', erro)
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro ao Carregar Pedido',
+          text: 'Não foi possível carregar os dados do pedido. Tente novamente.',
+          confirmButtonColor: '#3b82f6',
+        })
         formulario.value.clienteNome = ''
         formulario.value.itens = []
       }
@@ -120,6 +190,21 @@ export default {
 
     // Salva a devolução
     const salvar = async () => {
+      // Regra: Apenas PENDENTE pode ser atualizado (PUT)
+      if (modoEdicao.value && formulario.value.status !== 'PENDENTE') {
+        Swal.fire({
+          icon: 'error',
+          title: 'Operação Não Permitida',
+          text: `Devoluções com status ${formulario.value.status} não podem ser editadas.`,
+          confirmButtonColor: '#3b82f6',
+          customClass: {
+            popup: 'rounded-2xl',
+            confirmButton: 'px-4 py-2 rounded-lg',
+          },
+        })
+        return
+      }
+
       // Valida se há itens selecionados
       const itensSelecionados = formulario.value.itens.filter((item) => item.selecionado)
 
@@ -138,12 +223,11 @@ export default {
       }
 
       // Valida quantidades
-      const quantidadesInvalidas = itensSelecionados.some(
-        (item) =>
-          !item.quantidadeDevolver ||
-          item.quantidadeDevolver <= 0 ||
-          item.quantidadeDevolver > item.quantidade,
-      )
+      const quantidadesInvalidas = itensSelecionados.some((item) => {
+        const qtdDevolver = parseFloat(item.quantidadeDevolver)
+        const qtdTotal = parseFloat(item.quantidade)
+        return isNaN(qtdDevolver) || qtdDevolver <= 0 || qtdDevolver > qtdTotal
+      })
 
       if (quantidadesInvalidas) {
         Swal.fire({
@@ -159,25 +243,31 @@ export default {
         return
       }
 
-      const dadosDevolucao = {
-        pedidoId: formulario.value.pedidoId,
-        dataDevolucao: formulario.value.dataDevolucao,
-        motivo: formulario.value.motivo,
-        observacoes: formulario.value.observacoes,
-        itens: itensSelecionados.map((item) => ({
-          produtoId: item.produtoId,
-          quantidade: item.quantidadeDevolver,
-          precoUnitario: item.precoUnitario,
-        })),
-        valorTotal: valorTotalDevolucao.value,
-      }
-
       try {
-        if (modoEdicao.value && formulario.value.id) {
-          await atualizarDevolucao(formulario.value.id, dadosDevolucao)
-        } else {
-          await criarDevolucao(dadosDevolucao)
-        }
+        // API aceita UMA devolução por vez (um produto)
+        // Criar múltiplas devoluções se houver múltiplos itens selecionados
+        const promises = itensSelecionados.map((item) => {
+          const dadosDevolucao = {
+            pedidoId: formulario.value.pedidoId,
+            produtoId: item.produtoId,
+            clienteId: null, // Será preenchido automaticamente pela API
+            quantidade: parseFloat(item.quantidadeDevolver),
+            motivo: formulario.value.motivo,
+          }
+
+          if (modoEdicao.value && item.id) {
+            // Atualização - apenas se PENDENTE
+            return atualizarDevolucao(item.id, {
+              ...dadosDevolucao,
+              id: item.id,
+            })
+          } else {
+            // Criação
+            return criarDevolucao(dadosDevolucao)
+          }
+        })
+
+        await Promise.all(promises)
       } catch (erro) {
         console.error('Erro ao salvar devolução:', erro)
       }
@@ -190,6 +280,7 @@ export default {
       pedidos,
       formulario,
       dataHoje,
+      podeEditar,
       valorTotalDevolucao,
       carregarPedido,
       salvar,

@@ -17,6 +17,7 @@ import ClienteView from '@/views/Cliente/ClienteView.vue'
 import RelatoriosView from '@/views/Relatorios/RelatoriosView.vue'
 import DevolucoesView from '@/views/Devolucoes/DevolucoesView.vue'
 import ManualUsuarioView from '@/views/ManualUsuario/ManualUsuario.vue'
+import RentabilidadeView from '@/views/Rentabilidade/RentabilidadeView.vue'
 
 const routes = [
   {
@@ -105,6 +106,12 @@ const routes = [
     path: '/relatorios',
     name: 'Relatorios',
     component: RelatoriosView,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/rentabilidade',
+    name: 'Rentabilidade',
+    component: RentabilidadeView,
     meta: { requiresAuth: true },
   },
   {

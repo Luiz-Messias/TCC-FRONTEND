@@ -102,17 +102,21 @@
             <tr v-for="dev in devolucoes" :key="dev.id" class="hover:bg-gray-50">
               <td class="px-6 py-4 text-sm text-gray-900">#{{ dev.id }}</td>
               <td class="px-6 py-4 text-sm text-gray-600">
-                {{ new Date(dev.dataDevolucao).toLocaleDateString('pt-BR') }}
+                {{ formatarData(dev.dataDevolucao) }}
               </td>
               <td class="px-6 py-4 text-sm font-medium text-gray-900">
                 {{ dev.clienteNome || '-' }}
               </td>
-              <td class="px-6 py-4 text-sm text-gray-600">#{{ dev.pedidoId }}</td>
               <td class="px-6 py-4 text-sm text-gray-600">
-                {{ dev.motivo || 'Não informado' }}
+                {{ dev.pedidoId ? `#${dev.pedidoId.substring(0, 8)}...` : '-' }}
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-600">
+                <div class="max-w-xs truncate" :title="formatarMotivo(dev.motivo)">
+                  {{ formatarMotivo(dev.motivo) }}
+                </div>
               </td>
               <td class="px-6 py-4 text-sm font-medium text-gray-900">
-                R$ {{ (dev.valorTotal || 0).toFixed(2) }}
+                {{ formatarValor(dev.valorTotal) }}
               </td>
               <td class="px-6 py-4">
                 <span
@@ -122,7 +126,7 @@
                   ]"
                 >
                   <i :class="['fas', obterIconeStatus(dev.status), 'mr-1']"></i>
-                  {{ dev.status }}
+                  {{ converterStatus(dev.status) }}
                 </span>
               </td>
               <td class="px-6 py-4 text-sm font-medium">
@@ -144,13 +148,22 @@
                     <i class="fas fa-times"></i>
                   </button>
                   <button
-                    @click="editarDevolucao(dev)"
+                    v-if="dev.status === 'APROVADA'"
+                    @click="processarDevolucao(dev.id)"
                     class="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-100"
+                    title="Processar"
+                  >
+                    <i class="fas fa-cog"></i>
+                  </button>
+                  <button
+                    @click="editarDevolucao(dev)"
+                    class="text-purple-600 hover:text-purple-900 p-1 rounded hover:bg-purple-100"
                     title="Ver Detalhes"
                   >
                     <i class="fas fa-eye"></i>
                   </button>
                   <button
+                    v-if="dev.status === 'PENDENTE'"
                     @click="confirmarExclusao(dev)"
                     class="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-100"
                     title="Excluir"

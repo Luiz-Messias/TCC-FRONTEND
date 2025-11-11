@@ -13,7 +13,7 @@
         <div class="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
           <div>
             <h2 class="text-xl font-bold text-gray-900">
-              {{ modoEdicao ? 'Detalhes da Devolução' : 'Nova Devolução' }}
+              {{ modoEdicao ? 'Detalhes da devolução' : 'Nova devolução' }}
             </h2>
             <p class="text-sm text-gray-600 mt-1">
               {{
@@ -34,7 +34,7 @@
           <div class="mb-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
               <i class="fas fa-info-circle text-blue-600 mr-2"></i>
-              Informações Básicas
+              Informações básicas
             </h3>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -51,19 +51,26 @@
                   :disabled="modoEdicao"
                 >
                   <option value="">Selecione um pedido</option>
-                  <option v-if="pedidos.length === 0" disabled>Carregando pedidos...</option>
-                  <option v-for="pedido in pedidos" :key="pedido.id" :value="pedido.id">
-                    #{{ pedido.id }} -
-                    {{ pedido.clienteNome || pedido.cliente?.nome || 'Cliente não informado' }} - R$
+                  <option v-if="pedidos.length === 0" disabled>
+                    {{ loading ? 'Carregando pedidos...' : 'Nenhum pedido disponível' }}
+                  </option>
+                  <option v-for="pedido in pedidos" :key="pedido.pedidoId" :value="pedido.pedidoId">
+                    Pedido #{{
+                      pedido.pedidoId?.substring(0, 8).toUpperCase() || pedido.pedidoId
+                    }}
+                    - ({{ pedido.itens?.length || 0 }} itens) - R$
                     {{ (pedido.valorTotal || 0).toFixed(2) }}
                   </option>
                 </select>
+                <p v-if="pedidos.length > 0" class="text-xs text-gray-500 mt-1">
+                  {{ pedidos.length }} pedido(s) disponíveis para devolução
+                </p>
               </div>
 
               <!-- Data da Devolução -->
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Data da Devolução <span class="text-red-500">*</span>
+                  Data da devolução <span class="text-red-500">*</span>
                 </label>
                 <input
                   v-model="formulario.dataDevolucao"
@@ -107,7 +114,7 @@
           <!-- Motivo -->
           <div class="mb-6">
             <label class="block text-sm font-medium text-gray-700 mb-2">
-              Motivo da Devolução <span class="text-red-500">*</span>
+              Motivo da devolução <span class="text-red-500">*</span>
             </label>
             <select
               v-model="formulario.motivo"
@@ -116,11 +123,11 @@
               :disabled="modoEdicao && formulario.status !== 'PENDENTE'"
             >
               <option value="">Selecione um motivo</option>
-              <option value="PRODUTO_DANIFICADO">Produto Danificado</option>
-              <option value="PRODUTO_VENCIDO">Produto Vencido</option>
-              <option value="PRODUTO_ERRADO">Produto Errado</option>
-              <option value="NAO_CONFORME">Não Conforme</option>
-              <option value="DESISTENCIA">Desistência do Cliente</option>
+              <option value="PRODUTO_DANIFICADO">Produto danificado</option>
+              <option value="PRODUTO_VENCIDO">Produto vencido</option>
+              <option value="PRODUTO_ERRADO">Produto errado</option>
+              <option value="NAO_CONFORME">Não conforme</option>
+              <option value="DESISTENCIA">Desistência do cliente</option>
               <option value="OUTRO">Outro</option>
             </select>
           </div>
@@ -141,7 +148,7 @@
           <div class="mb-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
               <i class="fas fa-box text-blue-600 mr-2"></i>
-              Itens para Devolução
+              Itens para devolução
             </h3>
 
             <div
@@ -173,12 +180,12 @@
                 </div>
 
                 <div class="text-right">
-                  <p class="text-sm text-gray-600">Quantidade Pedida</p>
+                  <p class="text-sm text-gray-600">Quantidade pedida</p>
                   <p class="font-semibold text-gray-900">{{ item.quantidade }}</p>
                 </div>
 
                 <div class="w-32">
-                  <label class="block text-xs text-gray-600 mb-1">Qtd. a Devolver</label>
+                  <label class="block text-xs text-gray-600 mb-1">Qtd. a devolver</label>
                   <input
                     v-model.number="item.quantidadeDevolver"
                     type="number"
@@ -190,7 +197,7 @@
                 </div>
 
                 <div class="text-right w-32">
-                  <p class="text-sm text-gray-600">Valor Unit.</p>
+                  <p class="text-sm text-gray-600">Valor unit.</p>
                   <p class="font-semibold text-gray-900">
                     R$ {{ (item.precoUnitario || 0).toFixed(2) }}
                   </p>
@@ -210,13 +217,13 @@
           <div class="bg-blue-50 border border-blue-200 rounded-md p-4 mb-6">
             <div class="flex justify-between items-center">
               <div>
-                <p class="text-sm text-gray-600">Itens Selecionados</p>
+                <p class="text-sm text-gray-600">Itens selecionados</p>
                 <p class="text-2xl font-bold text-gray-900">
                   {{ formulario.itens.filter((i) => i.selecionado).length }}
                 </p>
               </div>
               <div class="text-right">
-                <p class="text-sm text-gray-600">Valor Total da Devolução</p>
+                <p class="text-sm text-gray-600">Valor total da devolução</p>
                 <p class="text-2xl font-bold text-blue-600">
                   R$ {{ valorTotalDevolucao.toFixed(2) }}
                 </p>
@@ -241,7 +248,7 @@
             >
               <i v-if="loading" class="fas fa-spinner fa-spin mr-2"></i>
               <i v-else class="fas fa-save mr-2"></i>
-              {{ modoEdicao ? 'Atualizar Devolução' : 'Registrar Devolução' }}
+              {{ modoEdicao ? 'Atualizar devolução' : 'Registrar devolução' }}
             </button>
           </div>
         </form>

@@ -111,16 +111,26 @@ export const usePedidoStore = defineStore('pedido', () => {
       const estoqueStore = useEstoqueStore()
 
       // Verificar disponibilidade de estoque antes de criar o pedido
+      const errosEstoque = []
       for (const item of dadosPedido.itens) {
         const verificacao = await estoqueStore.verificarDisponibilidade(
           item.produtoId,
           item.quantidade,
         )
         if (!verificacao.disponivel) {
-          toast.error(`${item.produtoNome || 'Produto'}: ${verificacao.mensagem}`)
-          loading.value = false
-          throw new Error(verificacao.mensagem)
+          errosEstoque.push(`${item.produtoNome || 'Produto'}: ${verificacao.mensagem}`)
         }
+      }
+
+      // Se houver erros, mostrar apenas um toast com todos os problemas
+      if (errosEstoque.length > 0) {
+        if (errosEstoque.length === 1) {
+          toast.error(errosEstoque[0])
+        } else {
+          toast.error(`${errosEstoque.length} produtos com problemas no estoque`)
+        }
+        loading.value = false
+        throw new Error('Produto sem estoque cadastrado')
       }
 
       // Criar o pedido

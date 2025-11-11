@@ -50,15 +50,60 @@ export const useDevolucaoStore = defineStore('devolucao', () => {
 
       const resposta = await api.get('/devolucao', { params })
 
+      let items = []
       if (resposta.data.data) {
         const pagedResult = resposta.data.data
-        devolucoes.value = pagedResult.items || []
+        items = pagedResult.items || []
         totalItens.value = pagedResult.totalItems || 0
         paginaAtual.value = pagedResult.currentPage || 1
       } else {
-        devolucoes.value = resposta.data.items || resposta.data || []
-        totalItens.value = resposta.data.totalItems || resposta.data.length || 0
+        items = resposta.data.items || resposta.data || []
+        totalItens.value = resposta.data.totalItems || items.length || 0
       }
+
+      // Mapear dados para formato correto
+      devolucoes.value = await Promise.all(
+        items.map(async (dev) => {
+          // Buscar nome do cliente se tiver clienteId
+          let clienteNome = '-'
+          if (dev.clienteId) {
+            try {
+              const clienteResp = await api.get(`/cliente/${dev.clienteId}`)
+              clienteNome = clienteResp.data.data?.nome || clienteResp.data?.nome || '-'
+            } catch (e) {
+              console.warn('Erro ao buscar cliente:', e)
+            }
+          }
+
+          // Buscar nome do produto
+          let produtoNome = '-'
+          if (dev.produtoId) {
+            try {
+              const produtoResp = await api.get(`/produto/${dev.produtoId}`)
+              produtoNome = produtoResp.data.data?.nome || produtoResp.data?.nome || '-'
+            } catch (e) {
+              console.warn('Erro ao buscar produto:', e)
+            }
+          }
+
+          // Converter status numérico para texto
+          const statusMap = {
+            0: 'PENDENTE',
+            1: 'APROVADA',
+            2: 'RECUSADA',
+            3: 'PROCESSADA',
+          }
+
+          return {
+            ...dev,
+            clienteNome,
+            produtoNome,
+            status: statusMap[dev.status] || dev.status,
+            dataDevolucao: dev.dataDevolucao || dev.dataCriacao || new Date().toISOString(),
+            motivo: dev.motivo || 'Não informado',
+          }
+        }),
+      )
     } catch (erro) {
       const mensagem = parseApiError(erro)
       toast.error(mensagem)
@@ -125,10 +170,32 @@ export const useDevolucaoStore = defineStore('devolucao', () => {
     }
   }
 
-  const recusarDevolucao = async (id) => {
+  const recusarDevolucao = async (id, motivo) => {
     try {
-      await api.patch(`/devolucao/${id}/recusar`)
+      // API exige motivo obrigatório para recusar
+      await api.patch(`/devolucao/${id}/recusar`, JSON.stringify(motivo), {
+        headers: { 'Content-Type': 'application/json' },
+      })
       toast.success('Devolução recusada!')
+      await listarDevolucoes()
+    } catch (erro) {
+      const mensagem = parseApiError(erro)
+      toast.error(mensagem)
+      throw erro
+    }
+  }
+
+  const processarDevolucao = async (id, observacao = null) => {
+    try {
+      // Processa devolução aprovada e devolve ao estoque
+      await api.patch(
+        `/devolucao/${id}/processar`,
+        observacao ? JSON.stringify(observacao) : null,
+        {
+          headers: { 'Content-Type': 'application/json' },
+        },
+      )
+      toast.success('Devolução processada com sucesso!')
       await listarDevolucoes()
     } catch (erro) {
       const mensagem = parseApiError(erro)
@@ -151,19 +218,62 @@ export const useDevolucaoStore = defineStore('devolucao', () => {
 
   const carregarPedidosConcluidos = async () => {
     try {
-      // Busca todos os pedidos (não cancelados) para permitir devoluções
-      const resposta = await api.get('/pedido')
+      const params = {
+        pagina: 1,
+        itensPorPagina: 1000,
+        ordenarPor: 'dataPedido',
+        direcao: 'desc',
+      }
 
-      let todosPedidos = resposta.data.data?.items || resposta.data.items || resposta.data || []
+      const resposta = await api.get('/pedido', { params })
 
-      // Filtra apenas pedidos que não estão cancelados (podem ter devolução)
-      pedidos.value = todosPedidos.filter(
-        (pedido) => pedido.status !== 'CANCELADO' && pedido.status !== 'Cancelado',
-      )
+      let todosPedidos = []
 
-      console.log('Pedidos disponíveis para devolução:', pedidos.value.length, pedidos.value)
+      // Usa o mesmo padrão do pedidoStore
+      if (resposta.data.data) {
+        const pagedResult = resposta.data.data
+        todosPedidos = pagedResult.items || []
+        console.log('✅ Total de pedidos retornados:', pagedResult.totalItems)
+      } else {
+        todosPedidos = resposta.data.items || resposta.data || []
+      }
+
+      // Busca informações dos clientes
+      const clientesResponse = await api.get('/cliente', { params: { itensPorPagina: 1000 } })
+      const clientesData =
+        clientesResponse.data.data?.items ||
+        clientesResponse.data.items ||
+        clientesResponse.data ||
+        []
+
+      // Cria um mapa de clientes para acesso rápido
+      const clientesMap = {}
+      clientesData.forEach((cliente) => {
+        clientesMap[cliente.id] = cliente.nome
+      })
+
+      // Adiciona o nome do cliente e filtra pedidos
+      pedidos.value = todosPedidos
+        .filter(
+          (pedido) =>
+            pedido.status !== 'CANCELADO' &&
+            pedido.status !== 'Cancelado' &&
+            pedido.itens &&
+            pedido.itens.length > 0,
+        )
+        .map((pedido) => ({
+          ...pedido,
+          clienteNome: clientesMap[pedido.clienteId] || 'Cliente não encontrado',
+        }))
+
+      console.log('✅ Pedidos disponíveis:', pedidos.value.length)
+      if (pedidos.value.length > 0) {
+        console.log('✅ Primeiro pedido:', pedidos.value[0])
+      }
     } catch (erro) {
-      console.error('Erro ao carregar pedidos:', erro)
+      console.error('❌ Erro ao carregar pedidos:', erro)
+      const mensagem = parseApiError(erro)
+      toast.error('Erro ao carregar pedidos: ' + mensagem)
       pedidos.value = []
     }
   }
@@ -230,24 +340,36 @@ export const useDevolucaoStore = defineStore('devolucao', () => {
   }
 
   // Funções auxiliares
+  const converterStatus = (statusNumerico) => {
+    const statusMap = {
+      0: 'PENDENTE',
+      1: 'APROVADA',
+      2: 'RECUSADA',
+      3: 'PROCESSADA',
+    }
+    return statusMap[statusNumerico] || statusNumerico
+  }
+
   const obterCorStatus = (status) => {
+    const statusTexto = typeof status === 'number' ? converterStatus(status) : status
     const cores = {
       PENDENTE: 'bg-yellow-100 text-yellow-800',
       APROVADA: 'bg-green-100 text-green-800',
       RECUSADA: 'bg-red-100 text-red-800',
       PROCESSADA: 'bg-blue-100 text-blue-800',
     }
-    return cores[status] || 'bg-gray-100 text-gray-800'
+    return cores[statusTexto] || 'bg-gray-100 text-gray-800'
   }
 
   const obterIconeStatus = (status) => {
+    const statusTexto = typeof status === 'number' ? converterStatus(status) : status
     const icones = {
       PENDENTE: 'fa-clock',
       APROVADA: 'fa-check-circle',
       RECUSADA: 'fa-times-circle',
       PROCESSADA: 'fa-sync',
     }
-    return icones[status] || 'fa-circle'
+    return icones[statusTexto] || 'fa-circle'
   }
 
   return {
@@ -273,6 +395,7 @@ export const useDevolucaoStore = defineStore('devolucao', () => {
     atualizarDevolucao,
     aprovarDevolucao,
     recusarDevolucao,
+    processarDevolucao,
     excluirDevolucao,
     carregarPedidosConcluidos,
     abrirModal,
@@ -282,6 +405,7 @@ export const useDevolucaoStore = defineStore('devolucao', () => {
     alterarOrdenacao,
 
     // Funções auxiliares
+    converterStatus,
     obterCorStatus,
     obterIconeStatus,
   }

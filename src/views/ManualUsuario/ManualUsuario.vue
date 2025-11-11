@@ -238,7 +238,7 @@
 }
 
 .doc-header-content {
-  padding: 16px;
+  padding: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;

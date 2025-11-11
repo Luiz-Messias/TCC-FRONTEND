@@ -1,7 +1,6 @@
 import axios from 'axios'
 import { useAuthStore } from '@/stores/authStore'
 
-// ✅ CORRIGIDO: Usar variável de ambiente para URL da API
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'https://dropeimports.com.br/api/',
 })

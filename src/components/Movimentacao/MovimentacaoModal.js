@@ -50,12 +50,14 @@ export default {
         }
       }
       const saldo = estoqueStore.saldos.find((s) => s.produtoId === form.value.produtoId)
-      return saldo || {
-        saldoAtual: 0,
-        estoqueMinimo: 0,
-        estoqueMaximo: 0,
-        lotes: [],
-      }
+      return (
+        saldo || {
+          saldoAtual: 0,
+          estoqueMinimo: 0,
+          estoqueMaximo: 0,
+          lotes: [],
+        }
+      )
     })
 
     const tiposMovimentacao = [
