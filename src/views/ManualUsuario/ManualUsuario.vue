@@ -107,13 +107,21 @@
                     :key="index"
                     class="print-item"
                   >
-                    <div class="print-placeholder">
-                      <span class="print-icon">📷</span>
-                      <p class="print-numero">Captura {{ index + 1 }}</p>
-                    </div>
                     <div class="print-info">
                       <h4>{{ print.titulo }}</h4>
                       <p>{{ print.descricao }}</p>
+                    </div>
+                    <div class="print-imagem" @click="abrirImagemModal(print.imagem)">
+                      <img
+                        v-if="print.imagem"
+                        :src="print.imagem"
+                        :alt="print.titulo"
+                        @error="handleImageError"
+                      />
+                      <div v-else class="print-placeholder">
+                        <span class="print-icon">📷</span>
+                        <p class="print-numero">Captura {{ index + 1 }}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -121,6 +129,14 @@
             </div>
           </div>
         </main>
+      </div>
+    </div>
+
+    <!-- Modal de Visualização de Imagem -->
+    <div v-if="imagemModal" class="modal-overlay" @click="fecharImagemModal">
+      <div class="modal-imagem">
+        <button class="btn-fechar-modal" @click="fecharImagemModal">✕</button>
+        <img :src="imagemModal" alt="Visualização ampliada" @click.stop />
       </div>
     </div>
   </div>
@@ -510,6 +526,52 @@
   gap: 1rem;
 }
 
+.print-imagem {
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition:
+    transform 0.3s,
+    box-shadow 0.3s;
+  position: relative;
+  cursor: zoom-in;
+}
+
+.print-imagem:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+}
+
+.print-imagem::after {
+  content: '🔍';
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 0.5rem;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+  font-size: 1rem;
+}
+
+.print-imagem:hover::after {
+  opacity: 1;
+}
+
+.print-imagem img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
 .print-placeholder {
   background: #f3f4f6;
   border: 2px dashed #d1d5db;
@@ -533,17 +595,21 @@
   font-weight: 500;
 }
 
+.print-info {
+  margin-bottom: 1rem;
+}
+
 .print-info h4 {
-  font-size: 1rem;
+  font-size: 1.125rem;
   font-weight: 600;
   color: #1a1a1a;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
 }
 
 .print-info p {
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   color: #6b7280;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 /* Responsive */
@@ -613,6 +679,78 @@
   .menu-nav a {
     font-size: 0.875rem;
     padding: 0.75rem 1rem;
+  }
+
+  .print-imagem img {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* Modal de Visualização de Imagem */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 2rem;
+  cursor: zoom-out;
+}
+
+.modal-imagem {
+  position: relative;
+  max-width: 95%;
+  max-height: 95%;
+  cursor: default;
+}
+
+.modal-imagem img {
+  max-width: 100%;
+  max-height: 90vh;
+  width: auto;
+  height: auto;
+  display: block;
+  border-radius: 8px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.btn-fechar-modal {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  background: white;
+  color: #1a1a1a;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 1.25rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.btn-fechar-modal:hover {
+  background: #f3f4f6;
+  transform: scale(1.1);
+}
+
+@media (max-width: 768px) {
+  .btn-fechar-modal {
+    top: -50px;
+  }
+
+  .modal-overlay {
+    padding: 1rem;
   }
 }
 </style>

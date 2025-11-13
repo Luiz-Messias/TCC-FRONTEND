@@ -5,6 +5,20 @@ export default {
   setup() {
     const mostrarDocumentacao = ref(false)
     const moduloSelecionado = ref(null)
+    const imagemModal = ref(null)
+
+    const handleImageError = (e) => {
+      console.error('Erro ao carregar imagem:', e.target.src)
+      e.target.style.display = 'none'
+    }
+
+    const abrirImagemModal = (imagemSrc) => {
+      imagemModal.value = imagemSrc
+    }
+
+    const fecharImagemModal = () => {
+      imagemModal.value = null
+    }
 
     const modulos = [
       {
@@ -37,18 +51,34 @@ export default {
             {
               titulo: 'Tela Principal - Lista de Produtos',
               descricao: 'Visualização da listagem completa com busca, filtros e ordenação',
+              imagem: new URL(
+                '@/assets/documentacao_imagens/GestaodeProdutos/lista_de_produtos.png',
+                import.meta.url,
+              ).href,
             },
             {
               titulo: 'Modal de Cadastro',
               descricao: 'Formulário para adicionar novo produto com todos os campos',
+              imagem: new URL(
+                '@/assets/documentacao_imagens/GestaodeProdutos/modal_cadastro.png',
+                import.meta.url,
+              ).href,
             },
             {
               titulo: 'Modal de Edição',
               descricao: 'Edição de informações de produto existente',
+              imagem: new URL(
+                '@/assets/documentacao_imagens/GestaodeProdutos/editar_produto.png',
+                import.meta.url,
+              ).href,
             },
             {
               titulo: 'Busca e Filtros',
               descricao: 'Demonstração dos recursos de busca por nome, categoria ou marca',
+              imagem: new URL(
+                '@/assets/documentacao_imagens/GestaodeProdutos/filtros_de_busca.png',
+                import.meta.url,
+              ).href,
             },
           ],
         },
@@ -85,22 +115,34 @@ export default {
               titulo: 'Dashboard de Estoque',
               descricao:
                 'Visão geral com KPIs: valor total, produtos com estoque baixo, movimentações',
+              imagem: new URL(
+                '@/assets/documentacao_imagens/ControledeEstoque/dashboard.png',
+                import.meta.url,
+              ).href,
             },
             {
               titulo: 'Saldos de Estoque',
               descricao: 'Lista de produtos com saldos, status visual e barras de progresso',
+              imagem: new URL(
+                '@/assets/documentacao_imagens/ControledeEstoque/saldos.png',
+                import.meta.url,
+              ).href,
             },
             {
               titulo: 'Modal de Nova Movimentação',
               descricao: 'Formulário para registrar entrada, saída ou ajuste',
+              imagem: new URL(
+                '@/assets/documentacao_imagens/ControledeEstoque/nova_movimentacao.png',
+                import.meta.url,
+              ).href,
             },
             {
               titulo: 'Histórico de Movimentações',
               descricao: 'Lista completa com filtros por período e tipo',
-            },
-            {
-              titulo: 'Alertas',
-              descricao: 'Visualização de alertas de estoque baixo e produtos vencendo',
+              imagem: new URL(
+                '@/assets/documentacao_imagens/ControledeEstoque/historico_movimentacoes.png',
+                import.meta.url,
+              ).href,
             },
           ],
         },
@@ -136,22 +178,34 @@ export default {
             {
               titulo: 'Lista de Pedidos',
               descricao: 'Visualização de todos os pedidos com filtros e status',
+              imagem: new URL(
+                '@/assets/documentacao_imagens/GestaodePedidos/lista_pedidos.png',
+                import.meta.url,
+              ).href,
             },
             {
               titulo: 'Criação de Novo Pedido',
               descricao: 'Tela de seleção de cliente e adição de produtos',
-            },
-            {
-              titulo: 'Carrinho de Produtos',
-              descricao: 'Lista de produtos adicionados com quantidades e valores',
+              imagem: new URL(
+                '@/assets/documentacao_imagens/GestaodePedidos/novo_pedido.png',
+                import.meta.url,
+              ).href,
             },
             {
               titulo: 'Detalhes do Pedido',
               descricao: 'Visualização completa com produtos, valores e status',
+              imagem: new URL(
+                '@/assets/documentacao_imagens/GestaodePedidos/detalhes_pedido.png',
+                import.meta.url,
+              ).href,
             },
             {
               titulo: 'Ações por Status',
               descricao: 'Botões disponíveis conforme status do pedido',
+              imagem: new URL(
+                '@/assets/documentacao_imagens/GestaodePedidos/acoes_pedido.png',
+                import.meta.url,
+              ).href,
             },
           ],
         },
@@ -183,18 +237,26 @@ export default {
             {
               titulo: 'Lista de Clientes',
               descricao: 'Visualização completa com busca e filtros',
+              imagem: new URL(
+                '@/assets/documentacao_imagens/GestaodeClientes/lista_clientes.png',
+                import.meta.url,
+              ).href,
             },
             {
-              titulo: 'Modal de Cadastro - Pessoa Física',
-              descricao: 'Formulário com campos para CPF e dados pessoais',
-            },
-            {
-              titulo: 'Modal de Cadastro - Pessoa Jurídica',
-              descricao: 'Formulário com campos para CNPJ e razão social',
+              titulo: 'Modal de Cadastro',
+              descricao: 'Formulário com campos para CPF/CNPJ e dados pessoais',
+              imagem: new URL(
+                '@/assets/documentacao_imagens/GestaodeClientes/cadastro_clientes.png',
+                import.meta.url,
+              ).href,
             },
             {
               titulo: 'Edição de Cliente',
               descricao: 'Atualização de informações cadastrais',
+              imagem: new URL(
+                '@/assets/documentacao_imagens/GestaodeClientes/edicao_clientes.png',
+                import.meta.url,
+              ).href,
             },
           ],
         },
@@ -225,14 +287,26 @@ export default {
             {
               titulo: 'Lista de Fornecedores',
               descricao: 'Visualização completa com informações principais',
+              imagem: new URL(
+                '@/assets/documentacao_imagens/GestaodeFornecedores/lista_fornecedores.png',
+                import.meta.url,
+              ).href,
             },
             {
               titulo: 'Modal de Cadastro',
               descricao: 'Formulário com dados fiscais e de contato',
+              imagem: new URL(
+                '@/assets/documentacao_imagens/GestaodeFornecedores/modal_cadastro.png',
+                import.meta.url,
+              ).href,
             },
             {
               titulo: 'Edição de Fornecedor',
               descricao: 'Atualização de informações cadastrais',
+              imagem: new URL(
+                '@/assets/documentacao_imagens/GestaodeFornecedores/editar_fornecedores.png',
+                import.meta.url,
+              ).href,
             },
           ],
         },
@@ -263,18 +337,18 @@ export default {
             {
               titulo: 'Gerenciamento de Categorias',
               descricao: 'Lista de categorias com contadores e ações',
-            },
-            {
-              titulo: 'Modal de Categoria',
-              descricao: 'Cadastro e edição de categoria',
+              imagem: new URL(
+                '@/assets/documentacao_imagens/CategoriaseMarcas/gerenciar_categorias.png',
+                import.meta.url,
+              ).href,
             },
             {
               titulo: 'Gerenciamento de Marcas',
               descricao: 'Lista de marcas com contadores e ações',
-            },
-            {
-              titulo: 'Modal de Marca',
-              descricao: 'Cadastro e edição de marca',
+              imagem: new URL(
+                '@/assets/documentacao_imagens/CategoriaseMarcas/gerenciar_marcas.png',
+                import.meta.url,
+              ).href,
             },
           ],
         },
@@ -306,18 +380,42 @@ export default {
             {
               titulo: 'Lista de Devoluções',
               descricao: 'Histórico completo com filtros',
+              imagem: new URL(
+                '@/assets/documentacao_imagens/Devolucoes/lista_devolucao.png',
+                import.meta.url,
+              ).href,
             },
             {
               titulo: 'Modal de Nova Devolução',
               descricao: 'Formulário com seleção de pedido e produtos',
+              imagem: new URL(
+                '@/assets/documentacao_imagens/Devolucoes/nova_devolucao.png',
+                import.meta.url,
+              ).href,
             },
             {
               titulo: 'Seleção de Motivo',
               descricao: 'Opções predefinidas de motivo de devolução',
+              imagem: new URL(
+                '@/assets/documentacao_imagens/Devolucoes/selecao_motivo.png',
+                import.meta.url,
+              ).href,
             },
             {
-              titulo: 'Confirmação de Reposição',
+              titulo: 'Aprovar Devolução',
+              descricao: 'Confirmação e processamento da devolução',
+              imagem: new URL(
+                '@/assets/documentacao_imagens/Devolucoes/aprovar_devolução.png',
+                import.meta.url,
+              ).href,
+            },
+            {
+              titulo: 'Processar Devolução',
               descricao: 'Visualização da reposição no estoque',
+              imagem: new URL(
+                '@/assets/documentacao_imagens/Devolucoes/processar_devolução.png',
+                import.meta.url,
+              ).href,
             },
           ],
         },
@@ -348,20 +446,63 @@ export default {
           ],
           prints: [
             {
-              titulo: 'Seleção de Relatório',
-              descricao: 'Menu com tipos de relatórios disponíveis',
+              titulo: 'Relatório de Produtos Vendidos',
+              descricao: 'Lista de produtos mais vendidos com quantidades',
+              imagem: new URL(
+                '@/assets/documentacao_imagens/Relatorios/relatório_vendidos.png',
+                import.meta.url,
+              ).href,
             },
             {
-              titulo: 'Relatório de Vendas',
-              descricao: 'Gráficos e tabelas de vendas por período',
+              titulo: 'Relatório com Filtros',
+              descricao: 'Aplicação de filtros por categoria, período e outros critérios',
+              imagem: new URL(
+                '@/assets/documentacao_imagens/Relatorios/relatório_com_filtros.png',
+                import.meta.url,
+              ).href,
+            },
+          ],
+        },
+      },
+      {
+        id: 'rentabilidade',
+        nome: 'Rentabilidade',
+        descricao: 'Análise de margem de lucro e rentabilidade dos produtos',
+        conteudo: {
+          visaoGeral:
+            'Módulo dedicado à análise de rentabilidade, permitindo visualizar margem de lucro, custos e lucratividade de cada produto com gráficos e relatórios detalhados.',
+          funcionalidades: [
+            'Cálculo automático de margem de lucro por produto',
+            'Visualização de lucro unitário e total',
+            'Análise de custos vs. preço de venda',
+            'Filtros por categoria e ordenação por margem/lucro',
+            'Gráfico de Top 10 produtos mais rentáveis',
+            'Indicadores consolidados: margem média, lucro total, vendas totais',
+            'Identificação de produtos com baixa margem',
+          ],
+          regrasNegocio: [
+            'Margem de lucro = ((Preço Venda - Preço Custo) / Preço Venda) × 100',
+            'Lucro total = Lucro unitário × Quantidade vendida',
+            'Apenas produtos com vendas aparecem no relatório',
+            'Produtos sem custo cadastrado mostram margem de 100%',
+            'Dados atualizados em tempo real com base em pedidos concluídos',
+          ],
+          prints: [
+            {
+              titulo: 'Tela Principal de Rentabilidade',
+              descricao: 'Dashboard com KPIs e gráfico de margem de lucro',
+              imagem: new URL(
+                '@/assets/documentacao_imagens/Rentabilidade/tela_pricipal.png',
+                import.meta.url,
+              ).href,
             },
             {
-              titulo: 'Análise de Estoque',
-              descricao: 'Visualização de valores e giro de estoque',
-            },
-            {
-              titulo: 'Exportação',
-              descricao: 'Opções de exportar para PDF ou Excel',
+              titulo: 'Relatório com Filtros',
+              descricao: 'Aplicação de filtros por categoria e ordenação',
+              imagem: new URL(
+                '@/assets/documentacao_imagens/Rentabilidade/relatório_com_filtro.png',
+                import.meta.url,
+              ).href,
             },
           ],
         },
@@ -388,16 +529,28 @@ export default {
           ],
           prints: [
             {
-              titulo: 'Lista de Conversões',
-              descricao: 'Conversões cadastradas por produto',
+              titulo: 'Tela de Conversão',
+              descricao: 'Interface principal para configurar conversões',
+              imagem: new URL(
+                '@/assets/documentacao_imagens/ConversaodeUnidades/conversao.png',
+                import.meta.url,
+              ).href,
             },
             {
-              titulo: 'Modal de Cadastro',
-              descricao: 'Definição de unidades e fator de conversão',
+              titulo: 'Seleção de Unidade de Origem',
+              descricao: 'Escolha da unidade base do produto',
+              imagem: new URL(
+                '@/assets/documentacao_imagens/ConversaodeUnidades/un_de_origem.png',
+                import.meta.url,
+              ).href,
             },
             {
-              titulo: 'Cálculo Automático',
-              descricao: 'Demonstração do cálculo de preço proporcional',
+              titulo: 'Seleção de Unidade de Destino',
+              descricao: 'Escolha da unidade para conversão e cálculo',
+              imagem: new URL(
+                '@/assets/documentacao_imagens/ConversaodeUnidades/un_de_destino.png',
+                import.meta.url,
+              ).href,
             },
           ],
         },
@@ -431,18 +584,10 @@ export default {
             {
               titulo: 'Tela de Login',
               descricao: 'Interface de autenticação com opção "Manter conectado"',
-            },
-            {
-              titulo: 'Gerenciamento de Usuários',
-              descricao: 'Lista de usuários com roles (apenas Admin)',
-            },
-            {
-              titulo: 'Modal de Novo Usuário',
-              descricao: 'Cadastro com email, senha e role',
-            },
-            {
-              titulo: 'Perfil do Usuário',
-              descricao: 'Visualização e edição de dados pessoais',
+              imagem: new URL(
+                '@/assets/documentacao_imagens/UsuariosePermissoes/login.png',
+                import.meta.url,
+              ).href,
             },
           ],
         },
@@ -478,10 +623,14 @@ export default {
       moduloSelecionado,
       moduloAtual,
       modulos,
+      imagemModal,
       abrirDocumentacao,
       voltarInicio,
       selecionarModulo,
       voltarModulos,
+      handleImageError,
+      abrirImagemModal,
+      fecharImagemModal,
     }
   },
 }
